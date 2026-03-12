@@ -42,6 +42,8 @@ class Ecf_Admin_Order {
         $encf = $order->get_meta(Ecf_Order_Handler::META_ECF_ENCF);
         $codsec = $order->get_meta(Ecf_Order_Handler::META_ECF_CODSEC);
         $errors = $order->get_meta(Ecf_Order_Handler::META_ECF_ERRORS);
+        $rnc_comprador = $order->get_meta(Ecf_Order_Handler::META_ECF_RNC_COMPRADOR);
+        $razon_social = $order->get_meta(Ecf_Order_Handler::META_ECF_RAZON_SOCIAL);
 
         $status_labels = [
             'none' => ['label' => __('Not sent', 'woo-ecf-dgii'), 'class' => 'ecf-status-none'],
@@ -66,6 +68,14 @@ class Ecf_Admin_Order {
 
             <?php if ($ecf_type): ?>
                 <p><strong><?php esc_html_e('Type:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($ecf_type); ?></p>
+            <?php endif; ?>
+
+            <?php if ($rnc_comprador): ?>
+                <p><strong><?php esc_html_e('Buyer RNC:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($rnc_comprador); ?></p>
+            <?php endif; ?>
+
+            <?php if ($razon_social): ?>
+                <p><strong><?php esc_html_e('Buyer:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($razon_social); ?></p>
             <?php endif; ?>
 
             <?php if ($encf): ?>

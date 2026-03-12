@@ -58,11 +58,19 @@ class Ecf_Order_Handler {
             return;
         }
 
-        // Determine ECF type
+        // Determine ECF type:
+        // - If checkout already set the type (user selected), use that
+        // - If RNC provided but no type set, use the configured default
+        // - If no RNC, always E32
         $rnc = $order->get_meta(self::META_ECF_RNC_COMPRADOR);
-        $ecf_type = $rnc
-            ? (get_option(Ecf_Settings::OPTION_DEFAULT_ECF_TYPE, 'E31'))
-            : 'E32';
+        $existing_type = $order->get_meta(self::META_ECF_TYPE);
+        if ($existing_type && in_array($existing_type, ['E31', 'E32', 'E33', 'E34'], true)) {
+            $ecf_type = $existing_type;
+        } elseif ($rnc) {
+            $ecf_type = get_option(Ecf_Settings::OPTION_DEFAULT_ECF_TYPE, 'E31');
+        } else {
+            $ecf_type = 'E32';
+        }
 
         // Claim eNCF sequence
         $sequence = Ecf_Sequence_Manager::claim_next($ecf_type);
