@@ -134,12 +134,16 @@ class Ecf_Order_Handler {
                 'ecf-dgii'
             );
         } catch (\Exception $e) {
-            $order->update_meta_data(self::META_ECF_STATUS, self::STATUS_ERROR);
-            $order->update_meta_data(self::META_ECF_ERRORS, $e->getMessage());
-            $order->save();
             $order->add_order_note(
                 sprintf(__('ECF submission failed: %s', 'woo-ecf-dgii'), $e->getMessage())
             );
+
+            // Activate contingencia mode
+            if (!Ecf_Contingencia::activate($order)) {
+                $order->update_meta_data(self::META_ECF_STATUS, self::STATUS_ERROR);
+                $order->update_meta_data(self::META_ECF_ERRORS, $e->getMessage());
+                $order->save();
+            }
         }
     }
 
@@ -200,10 +204,9 @@ class Ecf_Order_Handler {
                     'ecf-dgii'
                 );
             } else {
-                $order->update_meta_data(self::META_ECF_STATUS, self::STATUS_ERROR);
-                $order->update_meta_data(self::META_ECF_ERRORS, __('Polling timed out', 'woo-ecf-dgii'));
-                $order->save();
-                $order->add_order_note(__('ECF polling timed out. Check ECF SSD dashboard.', 'woo-ecf-dgii'));
+                // Polling timed out — activate contingencia
+                $order->add_order_note(__('ECF polling timed out.', 'woo-ecf-dgii'));
+                Ecf_Contingencia::activate($order);
             }
         } catch (\Exception $e) {
             if ($attempt < $max_polls) {
@@ -214,9 +217,11 @@ class Ecf_Order_Handler {
                     'ecf-dgii'
                 );
             } else {
-                $order->update_meta_data(self::META_ECF_STATUS, self::STATUS_ERROR);
-                $order->update_meta_data(self::META_ECF_ERRORS, $e->getMessage());
-                $order->save();
+                // All retries exhausted — activate contingencia
+                $order->add_order_note(
+                    sprintf(__('ECF polling failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+                );
+                Ecf_Contingencia::activate($order);
             }
         }
     }
