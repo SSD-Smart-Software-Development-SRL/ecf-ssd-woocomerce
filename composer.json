@@ -1,0 +1,22 @@
+{
+    "name": "puntoos/woo-ecf-dgii",
+    "description": "WooCommerce plugin for Dominican Republic electronic fiscal documents (ECF) via ECF SSD API",
+    "type": "wordpress-plugin",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.1",
+        "ecfx/ecf-dgii-php": "^1.0"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../ecf_dgii_clients/php",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "autoload": {
+        "classmap": ["includes/"]
+    }
+}
