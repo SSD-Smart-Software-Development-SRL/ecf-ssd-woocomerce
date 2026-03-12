@@ -29,6 +29,19 @@ class Ecf_Settings {
         return $tabs;
     }
 
+    private static function get_environment_options(): array {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            return [
+                'test' => __('Test', 'woo-ecf-dgii'),
+                'cert' => __('Certification', 'woo-ecf-dgii'),
+                'prod' => __('Production', 'woo-ecf-dgii'),
+            ];
+        }
+        return [
+            'prod' => __('Production', 'woo-ecf-dgii'),
+        ];
+    }
+
     public static function get_api_host(): string {
         $env = get_option(self::OPTION_ENVIRONMENT, 'test');
         return self::ENVIRONMENTS[$env] ?? self::ENVIRONMENTS['test'];
@@ -56,13 +69,11 @@ class Ecf_Settings {
             self::OPTION_ENVIRONMENT => [
                 'name' => __('Environment', 'woo-ecf-dgii'),
                 'type' => 'select',
-                'options' => [
-                    'test' => __('Test', 'woo-ecf-dgii'),
-                    'cert' => __('Certification', 'woo-ecf-dgii'),
-                    'prod' => __('Production', 'woo-ecf-dgii'),
-                ],
-                'default' => 'test',
-                'desc' => __('Select the ECF SSD API environment.', 'woo-ecf-dgii'),
+                'options' => self::get_environment_options(),
+                'default' => defined('WP_DEBUG') && WP_DEBUG ? 'test' : 'prod',
+                'desc' => defined('WP_DEBUG') && WP_DEBUG
+                    ? __('Select the ECF SSD API environment. (Test/Cert visible in debug mode)', 'woo-ecf-dgii')
+                    : '',
             ],
             self::OPTION_API_TOKEN => [
                 'name' => __('API Token', 'woo-ecf-dgii'),
