@@ -24,6 +24,7 @@ class Ecf_Plugin {
         require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-mapper.php';
         require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-order-handler.php';
         require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-checkout-fields.php';
+        require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-refund-handler.php';
         require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-admin-order.php';
     }
 
@@ -31,6 +32,7 @@ class Ecf_Plugin {
         Ecf_Settings::init();
         Ecf_Order_Handler::init();
         Ecf_Checkout_Fields::init();
+        Ecf_Refund_Handler::init();
         Ecf_Admin_Order::init();
     }
 

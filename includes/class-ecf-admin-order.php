@@ -116,6 +116,44 @@ class Ecf_Admin_Order {
                 });
                 </script>
             <?php endif; ?>
+
+            <?php
+            // Show credit notes (E34) for refunds
+            $refunds = $order->get_refunds();
+            if (!empty($refunds)):
+                foreach ($refunds as $refund):
+                    $ref_encf = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_ENCF);
+                    $ref_status = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_STATUS);
+                    $ref_codsec = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_CODSEC);
+                    $ref_errors = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_ERRORS);
+                    if (!$ref_encf) continue;
+
+                    $ref_status_label = match($ref_status) {
+                        'accepted' => ['label' => __('Accepted', 'woo-ecf-dgii'), 'class' => 'ecf-status-accepted'],
+                        'rejected' => ['label' => __('Rejected', 'woo-ecf-dgii'), 'class' => 'ecf-status-rejected'],
+                        'error' => ['label' => __('Error', 'woo-ecf-dgii'), 'class' => 'ecf-status-error'],
+                        'polling' => ['label' => __('Processing', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
+                        default => ['label' => __('Pending', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
+                    };
+                    ?>
+                    <hr style="margin:10px 0;">
+                    <p><strong><?php esc_html_e('Credit Note (E34)', 'woo-ecf-dgii'); ?></strong></p>
+                    <p>
+                        <span class="ecf-status-badge <?php echo esc_attr($ref_status_label['class']); ?>">
+                            <?php echo esc_html($ref_status_label['label']); ?>
+                        </span>
+                    </p>
+                    <p><strong><?php esc_html_e('eNCF:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($ref_encf); ?></p>
+                    <?php if ($ref_codsec): ?>
+                        <p><strong><?php esc_html_e('Security Code:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($ref_codsec); ?></p>
+                    <?php endif; ?>
+                    <?php if ($ref_errors): ?>
+                        <p class="ecf-error-details"><?php echo esc_html($ref_errors); ?></p>
+                    <?php endif; ?>
+                <?php
+                endforeach;
+            endif;
+            ?>
         </div>
         <?php
     }
