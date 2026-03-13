@@ -5,7 +5,9 @@
     "license": "proprietary",
     "require": {
         "php": "^8.1",
-        "ecfx/ecf-dgii-php": "^1.0"
+        "ecfx/ecf-dgii-php": "^1.0",
+        "dompdf/dompdf": "^3.1",
+        "chillerlan/php-qrcode": "^5.0"
     },
     "repositories": [
         {
@@ -18,5 +20,9 @@
     ],
     "autoload": {
         "classmap": ["includes/"]
+    },
+    "require-dev": {
+        "php-stubs/wordpress-stubs": "^6.9",
+        "php-stubs/woocommerce-stubs": "^10.6"
     }
 }

@@ -38,6 +38,12 @@ class Ecf_Admin_Order {
         }
 
         $status = $order->get_meta(Ecf_Order_Handler::META_ECF_STATUS) ?: 'none';
+
+        // On-demand polling: if still submitting, check the result now
+        if ($status === Ecf_Order_Handler::STATUS_SUBMITTING) {
+            $status = self::try_poll_order($order);
+        }
+
         $ecf_type = $order->get_meta(Ecf_Order_Handler::META_ECF_TYPE);
         $encf = $order->get_meta(Ecf_Order_Handler::META_ECF_ENCF);
         $codsec = $order->get_meta(Ecf_Order_Handler::META_ECF_CODSEC);
@@ -49,7 +55,6 @@ class Ecf_Admin_Order {
             'none' => ['label' => __('Not sent', 'woo-ecf-dgii'), 'class' => 'ecf-status-none'],
             Ecf_Order_Handler::STATUS_PENDING => ['label' => __('Pending', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
             Ecf_Order_Handler::STATUS_SUBMITTING => ['label' => __('Submitting', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
-            Ecf_Order_Handler::STATUS_POLLING => ['label' => __('Processing', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
             Ecf_Order_Handler::STATUS_ACCEPTED => ['label' => __('Accepted', 'woo-ecf-dgii'), 'class' => 'ecf-status-accepted'],
             Ecf_Order_Handler::STATUS_REJECTED => ['label' => __('Rejected', 'woo-ecf-dgii'), 'class' => 'ecf-status-rejected'],
             Ecf_Order_Handler::STATUS_ERROR => ['label' => __('Error', 'woo-ecf-dgii'), 'class' => 'ecf-status-error'],
@@ -93,6 +98,17 @@ class Ecf_Admin_Order {
                 </p>
             <?php endif; ?>
 
+            <?php if ($status === Ecf_Order_Handler::STATUS_ACCEPTED): ?>
+                <p>
+                    <a href="<?php echo esc_url(wp_nonce_url(
+                        admin_url('admin-ajax.php?action=ecf_dgii_download_invoice&order_id=' . $order->get_id()),
+                        'ecf_invoice_' . $order->get_id()
+                    )); ?>" class="button" target="_blank">
+                        <?php esc_html_e('Download Invoice', 'woo-ecf-dgii'); ?>
+                    </a>
+                </p>
+            <?php endif; ?>
+
             <?php if (in_array($status, ['error', 'rejected', 'none'])): ?>
                 <p>
                     <button type="button" class="button ecf-retry-btn"
@@ -124,6 +140,9 @@ class Ecf_Admin_Order {
                 foreach ($refunds as $refund):
                     $ref_encf = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_ENCF);
                     $ref_status = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_STATUS);
+                    if ($ref_status === 'submitting') {
+                        $ref_status = self::try_poll_refund($refund);
+                    }
                     $ref_codsec = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_CODSEC);
                     $ref_errors = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_ERRORS);
                     if (!$ref_encf) continue;
@@ -132,7 +151,7 @@ class Ecf_Admin_Order {
                         'accepted' => ['label' => __('Accepted', 'woo-ecf-dgii'), 'class' => 'ecf-status-accepted'],
                         'rejected' => ['label' => __('Rejected', 'woo-ecf-dgii'), 'class' => 'ecf-status-rejected'],
                         'error' => ['label' => __('Error', 'woo-ecf-dgii'), 'class' => 'ecf-status-error'],
-                        'polling' => ['label' => __('Processing', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
+                        'submitting' => ['label' => __('Processing', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
                         default => ['label' => __('Pending', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
                     };
                     ?>
@@ -156,6 +175,85 @@ class Ecf_Admin_Order {
             ?>
         </div>
         <?php
+    }
+
+    private static function try_poll_order(\WC_Order $order): string {
+        $message_id = $order->get_meta(Ecf_Order_Handler::META_ECF_MESSAGE_ID);
+        if (!$message_id) {
+            return Ecf_Order_Handler::STATUS_SUBMITTING;
+        }
+
+        try {
+            woo_ecf_dgii_autoloader();
+            $client = new Ecf_Api_Client();
+            $latest = $client->check_ecf(Ecf_Settings::get_company_rnc(), $message_id);
+
+            if (!$latest) {
+                return Ecf_Order_Handler::STATUS_SUBMITTING;
+            }
+
+            $progress = $latest->getProgress();
+
+            if ($progress === \Ecfx\EcfDgii\Model\EcfProgress::FINISHED) {
+                $order->update_meta_data(Ecf_Order_Handler::META_ECF_STATUS, Ecf_Order_Handler::STATUS_ACCEPTED);
+                $order->update_meta_data(Ecf_Order_Handler::META_ECF_CODSEC, $latest->getCodSec() ?? '');
+                $order->update_meta_data(Ecf_Order_Handler::META_ECF_IMPRESION_URL, $latest->getImpresionUrl() ?? '');
+                $order->update_meta_data(Ecf_Order_Handler::META_ECF_RESPONSE, json_encode($latest->jsonSerialize()));
+                $order->update_meta_data(Ecf_Order_Handler::META_ECF_ERRORS, '');
+                $order->save();
+                return Ecf_Order_Handler::STATUS_ACCEPTED;
+            }
+
+            if ($progress === \Ecfx\EcfDgii\Model\EcfProgress::ERROR) {
+                $order->update_meta_data(Ecf_Order_Handler::META_ECF_STATUS, Ecf_Order_Handler::STATUS_REJECTED);
+                $order->update_meta_data(Ecf_Order_Handler::META_ECF_ERRORS, $latest->getErrors() ?? $latest->getMensaje() ?? 'Unknown error');
+                $order->save();
+                return Ecf_Order_Handler::STATUS_REJECTED;
+            }
+        } catch (\Exception $e) {
+            // Silently fail — don't break the admin page
+        }
+
+        return Ecf_Order_Handler::STATUS_SUBMITTING;
+    }
+
+    private static function try_poll_refund(\WC_Order $refund): string {
+        $message_id = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_MESSAGE_ID);
+        $status = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_STATUS);
+        if (!$message_id || $status !== 'submitting') {
+            return $status ?: 'pending';
+        }
+
+        try {
+            woo_ecf_dgii_autoloader();
+            $client = new Ecf_Api_Client();
+            $latest = $client->check_ecf(Ecf_Settings::get_company_rnc(), $message_id);
+
+            if (!$latest) {
+                return 'submitting';
+            }
+
+            $progress = $latest->getProgress();
+
+            if ($progress === \Ecfx\EcfDgii\Model\EcfProgress::FINISHED) {
+                $refund->update_meta_data(Ecf_Refund_Handler::META_REFUND_ECF_STATUS, 'accepted');
+                $refund->update_meta_data(Ecf_Refund_Handler::META_REFUND_ECF_CODSEC, $latest->getCodSec() ?? '');
+                $refund->update_meta_data(Ecf_Refund_Handler::META_REFUND_ECF_ERRORS, '');
+                $refund->save();
+                return 'accepted';
+            }
+
+            if ($progress === \Ecfx\EcfDgii\Model\EcfProgress::ERROR) {
+                $refund->update_meta_data(Ecf_Refund_Handler::META_REFUND_ECF_STATUS, 'rejected');
+                $refund->update_meta_data(Ecf_Refund_Handler::META_REFUND_ECF_ERRORS, $latest->getErrors() ?? 'Unknown error');
+                $refund->save();
+                return 'rejected';
+            }
+        } catch (\Exception $e) {
+            // Silently fail
+        }
+
+        return 'submitting';
     }
 
     public static function enqueue_styles(string $hook): void {

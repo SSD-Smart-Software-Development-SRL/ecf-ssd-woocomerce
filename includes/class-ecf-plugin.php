@@ -27,6 +27,8 @@ class Ecf_Plugin {
         require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-refund-handler.php';
         require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-contingencia.php';
         require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-admin-order.php';
+        require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-sequence-admin.php';
+        require_once WOO_ECF_DGII_PLUGIN_DIR . 'includes/class-ecf-invoice-generator.php';
     }
 
     private function init_hooks(): void {
@@ -36,6 +38,8 @@ class Ecf_Plugin {
         Ecf_Refund_Handler::init();
         Ecf_Contingencia::init();
         Ecf_Admin_Order::init();
+        Ecf_Sequence_Admin::init();
+        Ecf_Invoice_Generator::init();
     }
 
     public static function activate(): void {

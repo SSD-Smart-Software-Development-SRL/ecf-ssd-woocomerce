@@ -1,20 +1,24 @@
 <?php
 defined('ABSPATH') || exit;
 
-use Ecfx\EcfDgii\Model\ECF;
-use Ecfx\EcfDgii\Model\Encabezado;
-use Ecfx\EcfDgii\Model\IdDoc;
-use Ecfx\EcfDgii\Model\Emisor;
-use Ecfx\EcfDgii\Model\Comprador;
-use Ecfx\EcfDgii\Model\Totales;
-use Ecfx\EcfDgii\Model\Item;
-use Ecfx\EcfDgii\Model\Retencion;
-use Ecfx\EcfDgii\Model\InformacionReferencia;
-use Ecfx\EcfDgii\Model\VersionType;
+use Ecfx\EcfDgii\Model\Ecf34ECF;
+use Ecfx\EcfDgii\Model\Ecf34Encabezado;
+use Ecfx\EcfDgii\Model\Ecf34IdDoc;
+use Ecfx\EcfDgii\Model\Ecf34Emisor;
+use Ecfx\EcfDgii\Model\Ecf34Comprador;
+use Ecfx\EcfDgii\Model\Ecf34Totales;
+use Ecfx\EcfDgii\Model\Ecf34Item;
+use Ecfx\EcfDgii\Model\Ecf34Retencion;
+use Ecfx\EcfDgii\Model\Ecf34InformacionReferencia;
+use Ecfx\EcfDgii\Model\Ecf34VersionType;
+use Ecfx\EcfDgii\Model\Ecf34CodigoModificacionType;
+use Ecfx\EcfDgii\Model\Ecf34IndicadorFacturacionType;
+use Ecfx\EcfDgii\Model\Ecf34IndicadorBienoServicioType;
+use Ecfx\EcfDgii\Model\Ecf34TipoIngresosValidationType;
 use Ecfx\EcfDgii\Model\TipoeCFType;
-use Ecfx\EcfDgii\Model\CodigoModificacionType;
-use Ecfx\EcfDgii\Model\IndicadorFacturacionType;
-use Ecfx\EcfDgii\Model\IndicadorBienoServicioType;
+use Ecfx\EcfDgii\Model\IndicadorMontoGravadoType;
+use Ecfx\EcfDgii\EcfProcessingException;
+use Ecfx\EcfDgii\EcfPollingTimeoutException;
 
 class Ecf_Refund_Handler {
 
@@ -26,13 +30,9 @@ class Ecf_Refund_Handler {
 
     public static function init(): void {
         add_action('woocommerce_order_refunded', [self::class, 'on_order_refunded'], 10, 2);
-        add_action('ecf_dgii_submit_refund_ecf', [self::class, 'async_submit_refund'], 10, 2);
         add_action('ecf_dgii_poll_refund_ecf', [self::class, 'async_poll_refund'], 10, 2);
     }
 
-    /**
-     * Triggered when a WooCommerce refund is created.
-     */
     public static function on_order_refunded(int $order_id, int $refund_id): void {
         $order = wc_get_order($order_id);
         $refund = wc_get_order($refund_id);
@@ -41,7 +41,6 @@ class Ecf_Refund_Handler {
             return;
         }
 
-        // Original order must have an accepted ECF
         $original_encf = $order->get_meta(Ecf_Order_Handler::META_ECF_ENCF);
         $original_status = $order->get_meta(Ecf_Order_Handler::META_ECF_STATUS);
         if (!$original_encf || $original_status !== Ecf_Order_Handler::STATUS_ACCEPTED) {
@@ -51,7 +50,6 @@ class Ecf_Refund_Handler {
             return;
         }
 
-        // Claim E34 sequence
         $sequence = Ecf_Sequence_Manager::claim_next('E34');
         if (!$sequence) {
             $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
@@ -62,21 +60,40 @@ class Ecf_Refund_Handler {
         }
 
         $refund->update_meta_data(self::META_REFUND_ECF_ENCF, $sequence['encf']);
-        $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'pending');
-        $refund->save();
 
-        as_schedule_single_action(
-            time(),
-            'ecf_dgii_submit_refund_ecf',
-            ['refund_id' => $refund_id, 'expiration_date' => $sequence['expiration_date']],
-            'ecf-dgii'
-        );
+        // Submit synchronously (fire-and-forget)
+        try {
+            woo_ecf_dgii_autoloader();
+            $original_encf = $order->get_meta(Ecf_Order_Handler::META_ECF_ENCF);
+            $company_data = Ecf_Settings::get_company_data();
+            $ecf = self::build_credit_note($order, $refund, $sequence['encf'], $sequence['expiration_date'], $original_encf, $company_data);
+
+            $client = new Ecf_Api_Client();
+            $result = $client->submit_ecf($ecf);
+
+            $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'submitting');
+            $refund->update_meta_data(self::META_REFUND_ECF_MESSAGE_ID, $result->getMessageId() ?? '');
+            $refund->save();
+
+            // Schedule async polling
+            as_schedule_single_action(
+                time(),
+                'ecf_dgii_poll_refund_ecf',
+                ['refund_id' => $refund_id, 'message_id' => $result->getMessageId()],
+                'ecf-dgii'
+            );
+        } catch (\Exception $e) {
+            $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
+            $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $e->getMessage());
+            $refund->save();
+            $order->add_order_note(
+                sprintf(__('ECF Credit Note submission failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+            );
+        }
     }
 
-    /**
-     * Async: Build and submit E34 credit note.
-     */
-    public static function async_submit_refund(int $refund_id, string $expiration_date): void {
+    public static function async_poll_refund(int $refund_id, string $message_id): void {
+        woo_ecf_dgii_autoloader();
         $refund = wc_get_order($refund_id);
         if (!$refund) {
             return;
@@ -87,31 +104,38 @@ class Ecf_Refund_Handler {
             return;
         }
 
+        $rnc = Ecf_Settings::get_company_rnc();
         $encf = $refund->get_meta(self::META_REFUND_ECF_ENCF);
-        $original_encf = $order->get_meta(Ecf_Order_Handler::META_ECF_ENCF);
-        $company_data = Ecf_Settings::get_company_data();
 
         try {
-            $ecf = self::build_credit_note($order, $refund, $encf, $expiration_date, $original_encf, $company_data);
-
             $client = new Ecf_Api_Client();
-            $response = $client->submit_ecf($ecf, 'E34');
+            $result = $client->poll_ecf($rnc, $message_id);
 
-            $message_id = $response->getMessageId();
-            $refund->update_meta_data(self::META_REFUND_ECF_MESSAGE_ID, $message_id);
-            $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'polling');
+            $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'accepted');
+            $refund->update_meta_data(self::META_REFUND_ECF_CODSEC, $result->getCodSec() ?? '');
+            $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, '');
             $refund->save();
 
             $order->add_order_note(
-                sprintf(__('ECF Credit Note (E34) submitted. eNCF: %s', 'woo-ecf-dgii'), $encf)
+                sprintf(
+                    __('ECF Credit Note accepted! eNCF: %s, Security Code: %s', 'woo-ecf-dgii'),
+                    $encf,
+                    $result->getCodSec() ?? 'N/A'
+                )
             );
-
-            as_schedule_single_action(
-                time() + 3,
-                'ecf_dgii_poll_refund_ecf',
-                ['refund_id' => $refund_id, 'attempt' => 1],
-                'ecf-dgii'
+        } catch (EcfProcessingException $e) {
+            $ecf_response = $e->getEcfResponse();
+            $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'rejected');
+            $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $ecf_response ? ($ecf_response->getErrors() ?? $e->getMessage()) : $e->getMessage());
+            $refund->save();
+            $order->add_order_note(
+                sprintf(__('ECF Credit Note rejected: %s', 'woo-ecf-dgii'), $e->getMessage())
             );
+        } catch (EcfPollingTimeoutException $e) {
+            $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
+            $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $e->getMessage());
+            $refund->save();
+            $order->add_order_note(__('ECF Credit Note polling timed out.', 'woo-ecf-dgii'));
         } catch (\Exception $e) {
             $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
             $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $e->getMessage());
@@ -122,88 +146,6 @@ class Ecf_Refund_Handler {
         }
     }
 
-    /**
-     * Async: Poll E34 status.
-     */
-    public static function async_poll_refund(int $refund_id, int $attempt): void {
-        $refund = wc_get_order($refund_id);
-        if (!$refund) {
-            return;
-        }
-
-        $order = wc_get_order($refund->get_parent_id());
-        $max_polls = (int) get_option(Ecf_Settings::OPTION_RETRY_MAX, 3) * 10;
-        $retry_interval = (int) get_option(Ecf_Settings::OPTION_RETRY_INTERVAL, 5);
-        $rnc = Ecf_Settings::get_company_rnc();
-        $message_id = $refund->get_meta(self::META_REFUND_ECF_MESSAGE_ID);
-
-        try {
-            $client = new Ecf_Api_Client();
-            $results = $client->get_ecf_status($rnc, $message_id);
-
-            if (empty($results)) {
-                throw new \RuntimeException('Empty response');
-            }
-
-            $result = $results[0];
-            $progress = $result->getProgress();
-            $progress_value = is_object($progress) ? ($progress->value ?? (string)$progress) : (string)$progress;
-
-            if (strtolower($progress_value) === 'finished') {
-                $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'accepted');
-                $refund->update_meta_data(self::META_REFUND_ECF_CODSEC, $result->getCodSec() ?? '');
-                $refund->save();
-
-                if ($order) {
-                    $order->add_order_note(
-                        sprintf(
-                            __('ECF Credit Note accepted! eNCF: %s, Security Code: %s', 'woo-ecf-dgii'),
-                            $refund->get_meta(self::META_REFUND_ECF_ENCF),
-                            $result->getCodSec() ?? 'N/A'
-                        )
-                    );
-                }
-                return;
-            }
-
-            if (strtolower($progress_value) === 'error') {
-                $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'rejected');
-                $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $result->getErrors() ?? '');
-                $refund->save();
-                return;
-            }
-
-            if ($attempt < $max_polls) {
-                as_schedule_single_action(
-                    time() + $retry_interval,
-                    'ecf_dgii_poll_refund_ecf',
-                    ['refund_id' => $refund_id, 'attempt' => $attempt + 1],
-                    'ecf-dgii'
-                );
-            } else {
-                $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
-                $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, __('Polling timed out', 'woo-ecf-dgii'));
-                $refund->save();
-            }
-        } catch (\Exception $e) {
-            if ($attempt < $max_polls) {
-                as_schedule_single_action(
-                    time() + $retry_interval,
-                    'ecf_dgii_poll_refund_ecf',
-                    ['refund_id' => $refund_id, 'attempt' => $attempt + 1],
-                    'ecf-dgii'
-                );
-            } else {
-                $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
-                $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $e->getMessage());
-                $refund->save();
-            }
-        }
-    }
-
-    /**
-     * Build E34 credit note ECF from a WooCommerce refund.
-     */
     private static function build_credit_note(
         \WC_Order $order,
         \WC_Order $refund,
@@ -211,34 +153,65 @@ class Ecf_Refund_Handler {
         string $expiration_date,
         string $original_encf,
         array $company_data,
-    ): ECF {
-        $emisor = new Emisor([
-            'rnc_emisor' => Ecf_Settings::get_company_rnc(),
-            'razon_social_emisor' => $company_data['razonSocial'] ?? '',
-            'direccion_emisor' => $company_data['direccion'] ?? '',
-            'fecha_emision' => new \DateTime(),
-            'numero_factura_interna' => (string) $refund->get_id(),
-        ]);
+    ): Ecf34ECF {
+        $emisor = new Ecf34Emisor();
+        $emisor->setRncEmisor(Ecf_Settings::get_company_rnc());
+        $emisor->setRazonSocialEmisor($company_data['razonSocial'] ?? '');
+        $emisor->setDireccionEmisor($company_data['direccion'] ?? '');
+        $emisor->setFechaEmision(new \DateTime());
+        $emisor->setNumeroFacturaInterna((string) $refund->get_id());
 
-        $encabezado = new Encabezado([
-            'version' => VersionType::VERSION1_0,
-            'id_doc' => new IdDoc([
-                'tipoe_cf' => TipoeCFType::NOTA_DE_CREDITO_ELECTRONICA,
-                'encf' => $encf,
-                'fecha_vencimiento_secuencia' => new \DateTime($expiration_date),
-            ]),
-            'emisor' => $emisor,
-            'totales' => new Totales([
-                'monto_total' => abs((float) $refund->get_total()),
-            ]),
-        ]);
+        $id_doc = new Ecf34IdDoc();
+        $id_doc->setTipoeCf(TipoeCFType::NOTA_DE_CREDITO_ELECTRONICA);
+        $id_doc->setEncf($encf);
+        $id_doc->setTipoIngresos(Ecf34TipoIngresosValidationType::_01);
+        $id_doc->setIndicadorMontoGravado(IndicadorMontoGravadoType::CON_ITBIS_INCLUIDO);
 
-        // Add comprador if original order had one
+        $totales = new Ecf34Totales();
+        $refund_total = abs((float) $refund->get_total());
+        $totales->setMontoTotal($refund_total);
+
+        // Calculate ITBIS for refund
+        $exempt = 0.0;
+        $gravado_i1 = 0.0;
+        $total_itbis1 = 0.0;
+
+        foreach ($refund->get_items() as $item) {
+            /** @var \WC_Order_Item_Product $item */
+            $tax = abs((float) $item->get_total_tax());
+            $subtotal = abs((float) $item->get_total());
+
+            if ($tax <= 0) {
+                $exempt += $subtotal;
+            } else {
+                $gravado_i1 += $subtotal;
+                $total_itbis1 += $tax;
+            }
+        }
+
+        if ($exempt > 0) {
+            $totales->setMontoExento($exempt);
+        }
+        if ($gravado_i1 > 0) {
+            $totales->setItbiS1(18);
+            $totales->setMontoGravadoI1($gravado_i1);
+            $totales->setMontoGravadoTotal($gravado_i1);
+            $totales->setTotalItbis1($total_itbis1);
+            $totales->setTotalItbis($total_itbis1);
+        }
+
+        $encabezado = new Ecf34Encabezado();
+        $encabezado->setVersion(Ecf34VersionType::VERSION1_0);
+        $encabezado->setIdDoc($id_doc);
+        $encabezado->setEmisor($emisor);
+        $encabezado->setTotales($totales);
+
         $rnc_comprador = $order->get_meta(Ecf_Order_Handler::META_ECF_RNC_COMPRADOR);
         if ($rnc_comprador) {
-            $encabezado->setComprador(new Comprador([
-                'razon_social_comprador' => $order->get_meta(Ecf_Order_Handler::META_ECF_RAZON_SOCIAL) ?: null,
-            ]));
+            $comprador = new Ecf34Comprador();
+            $comprador->setRncComprador($rnc_comprador);
+            $comprador->setRazonSocialComprador($order->get_meta(Ecf_Order_Handler::META_ECF_RAZON_SOCIAL) ?: null);
+            $encabezado->setComprador($comprador);
         }
 
         // Build refund line items
@@ -256,46 +229,49 @@ class Ecf_Refund_Handler {
             $product = $item->get_product();
             $is_virtual = $product && $product->is_virtual();
 
-            $items[] = new Item([
-                'numero_linea' => $line_number++,
-                'nombre_item' => $item->get_name(),
-                'indicador_facturacion' => self::get_refund_tax_indicator($item),
-                'indicador_bieno_servicio' => $is_virtual
-                    ? IndicadorBienoServicioType::SERVICIO
-                    : IndicadorBienoServicioType::BIEN,
-                'cantidad_item' => (float) $qty,
-                'precio_unitario_item' => $total / max(1, $qty),
-                'monto_item' => $total,
-                'retencion' => new Retencion(),
-            ]);
+            $ecf_item = new Ecf34Item();
+            $ecf_item->setNumeroLinea($line_number++);
+            $ecf_item->setNombreItem($item->get_name());
+            $ecf_item->setIndicadorFacturacion(self::get_refund_tax_indicator($item));
+            $ecf_item->setIndicadorBienoServicio(
+                $is_virtual ? Ecf34IndicadorBienoServicioType::SERVICIO : Ecf34IndicadorBienoServicioType::BIEN
+            );
+            $ecf_item->setCantidadItem((float) $qty);
+            $ecf_item->setUnidadMedida('Unidad');
+            $ecf_item->setPrecioUnitarioItem($total / max(1, $qty));
+            $ecf_item->setMontoItem($total);
+
+            $items[] = $ecf_item;
         }
 
         // If no line items (amount-only refund), create a single line
         if (empty($items)) {
-            $items[] = new Item([
-                'numero_linea' => 1,
-                'nombre_item' => __('Refund', 'woo-ecf-dgii'),
-                'indicador_facturacion' => IndicadorFacturacionType::ITBIS1_18_PERCENT,
-                'indicador_bieno_servicio' => IndicadorBienoServicioType::SERVICIO,
-                'cantidad_item' => 1.0,
-                'precio_unitario_item' => abs((float) $refund->get_total()),
-                'monto_item' => abs((float) $refund->get_total()),
-                'retencion' => new Retencion(),
-            ]);
+            $ecf_item = new Ecf34Item();
+            $ecf_item->setNumeroLinea(1);
+            $ecf_item->setNombreItem(__('Refund', 'woo-ecf-dgii'));
+            $ecf_item->setIndicadorFacturacion(Ecf34IndicadorFacturacionType::ITBIS1_18_PERCENT);
+            $ecf_item->setIndicadorBienoServicio(Ecf34IndicadorBienoServicioType::SERVICIO);
+            $ecf_item->setCantidadItem(1.0);
+            $ecf_item->setUnidadMedida('Unidad');
+            $ecf_item->setPrecioUnitarioItem($refund_total);
+            $ecf_item->setMontoItem($refund_total);
+
+            $items[] = $ecf_item;
         }
 
-        // Get original emission date for the reference
         $original_date = $order->get_date_paid() ?? $order->get_date_created();
 
-        return new ECF([
-            'encabezado' => $encabezado,
-            'detalles_items' => $items,
-            'informacion_referencia' => new InformacionReferencia([
-                'ncf_modificado' => $original_encf,
-                'fecha_ncf_modificado' => new \DateTime($original_date->format('Y-m-d')),
-                'codigo_modificacion' => CodigoModificacionType::CORRIGE_MONTOS_DEL_NCF_MODIFICADO,
-            ]),
-        ]);
+        $info_ref = new Ecf34InformacionReferencia();
+        $info_ref->setNcfModificado($original_encf);
+        $info_ref->setFechaNcfModificado(new \DateTime($original_date->format('Y-m-d')));
+        $info_ref->setCodigoModificacion(Ecf34CodigoModificacionType::CORRIGE_MONTOS_DEL_NCF_MODIFICADO);
+
+        $ecf = new Ecf34ECF();
+        $ecf->setEncabezado($encabezado);
+        $ecf->setDetallesItems($items);
+        $ecf->setInformacionReferencia($info_ref);
+
+        return $ecf;
     }
 
     private static function get_refund_tax_indicator(\WC_Order_Item_Product $item): string {
@@ -303,17 +279,17 @@ class Ecf_Refund_Handler {
         $total = abs((float) $item->get_total());
 
         if ($tax <= 0 || $total <= 0) {
-            return IndicadorFacturacionType::EXENTO_E;
+            return Ecf34IndicadorFacturacionType::EXENTO_E;
         }
 
         $rate = ($tax / $total) * 100;
         if ($rate >= 17 && $rate <= 19) {
-            return IndicadorFacturacionType::ITBIS1_18_PERCENT;
+            return Ecf34IndicadorFacturacionType::ITBIS1_18_PERCENT;
         }
         if ($rate >= 15 && $rate < 17) {
-            return IndicadorFacturacionType::ITBIS2_16_PERCENT;
+            return Ecf34IndicadorFacturacionType::ITBIS2_16_PERCENT;
         }
 
-        return IndicadorFacturacionType::ITBIS1_18_PERCENT;
+        return Ecf34IndicadorFacturacionType::ITBIS1_18_PERCENT;
     }
 }

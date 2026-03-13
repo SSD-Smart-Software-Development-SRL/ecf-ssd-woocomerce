@@ -21,9 +21,16 @@ define('WOO_ECF_DGII_PLUGIN_FILE', __FILE__);
 define('WOO_ECF_DGII_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WOO_ECF_DGII_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-// Load Composer autoloader
-if (file_exists(WOO_ECF_DGII_PLUGIN_DIR . 'vendor/autoload.php')) {
-    require_once WOO_ECF_DGII_PLUGIN_DIR . 'vendor/autoload.php';
+/**
+ * Load Composer autoloader on demand to avoid class conflicts with WooCommerce
+ * bundled dependencies (e.g., sabberworm/php-css-parser).
+ */
+function woo_ecf_dgii_autoloader(): void {
+    static $loaded = false;
+    if (!$loaded && file_exists(WOO_ECF_DGII_PLUGIN_DIR . 'vendor/autoload.php')) {
+        require_once WOO_ECF_DGII_PLUGIN_DIR . 'vendor/autoload.php';
+        $loaded = true;
+    }
 }
 
 // Declare HPOS compatibility

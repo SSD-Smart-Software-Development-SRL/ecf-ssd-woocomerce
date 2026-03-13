@@ -114,6 +114,14 @@ class Ecf_Sequence_Manager {
     }
 
     /**
+     * Deactivate a sequence.
+     */
+    public static function deactivate(int $id): void {
+        global $wpdb;
+        $wpdb->update(self::get_table_name(), ['is_active' => 0], ['id' => $id]);
+    }
+
+    /**
      * Get all sequences for admin display.
      */
     public static function get_all_sequences(): array {

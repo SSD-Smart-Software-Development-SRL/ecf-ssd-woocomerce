@@ -15,11 +15,19 @@ if ! wp plugin is-active woocommerce --allow-root 2>/dev/null; then
     wp plugin install woocommerce --activate --allow-root
 fi
 
-# Run composer install inside the plugin directory
+# Run composer install inside the plugin directory if needed
 cd /var/www/html/wp-content/plugins/woo-ecf-dgii
 if [ ! -d vendor ]; then
     echo "Running composer install..."
     composer install --no-dev --no-interaction
+fi
+
+# Always fix SDK symlink — host composer creates a relative symlink that
+# doesn't resolve inside the container. The SDK is mounted at /opt/ecf-dgii-php.
+if [ -d vendor/ecfx ]; then
+    rm -f vendor/ecfx/ecf-dgii-php
+    ln -s /opt/ecf-dgii-php vendor/ecfx/ecf-dgii-php
+    echo "SDK symlink set to /opt/ecf-dgii-php"
 fi
 
 # Activate our plugin
