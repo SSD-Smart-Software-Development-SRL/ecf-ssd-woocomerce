@@ -104,7 +104,8 @@ class Ecf_Sequence_Manager {
             return self::claim_next($ecf_type, $serie);
         }
 
-        $number = str_pad((string) $sequence->current_number, 10, '0', STR_PAD_LEFT);
+        $pad_length = ($serie === 'B') ? 8 : 10;
+        $number = str_pad((string) $sequence->current_number, $pad_length, '0', STR_PAD_LEFT);
         $encf = $sequence->prefix . $number;
 
         return [

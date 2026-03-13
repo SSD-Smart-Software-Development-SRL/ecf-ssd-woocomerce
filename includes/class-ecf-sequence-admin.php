@@ -112,31 +112,20 @@ class Ecf_Sequence_Admin {
                 <input type="hidden" name="action" value="ecf_add_sequence">
                 <table class="form-table">
                     <tr>
-                        <th><label for="ecf_type"><?php esc_html_e('ECF Type', 'woo-ecf-dgii'); ?></label></th>
-                        <td>
-                            <select name="ecf_type" id="ecf_type" required>
-                                <option value="E31">E31 - Crédito Fiscal</option>
-                                <option value="E32">E32 - Consumo</option>
-                                <option value="E33">E33 - Nota de Débito</option>
-                                <option value="E34">E34 - Nota de Crédito</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
                         <th><label for="serie"><?php esc_html_e('Serie', 'woo-ecf-dgii'); ?></label></th>
                         <td>
                             <select name="serie" id="serie" required>
-                                <option value="E">E - Electronic</option>
+                                <option value="E">E - Electrónico</option>
                                 <option value="B">B - Contingencia</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="prefix"><?php esc_html_e('Prefix', 'woo-ecf-dgii'); ?></label></th>
+                        <th><label for="ecf_type"><?php esc_html_e('Type', 'woo-ecf-dgii'); ?></label></th>
                         <td>
-                            <input type="text" name="prefix" id="prefix" required
-                                   placeholder="E32" maxlength="13" class="regular-text">
-                            <p class="description"><?php esc_html_e('e.g., E32 — the prefix before the sequence number', 'woo-ecf-dgii'); ?></p>
+                            <select name="ecf_type" id="ecf_type" required>
+                            </select>
+                            <input type="hidden" name="prefix" id="prefix" value="">
                         </td>
                     </tr>
                     <tr>
@@ -163,6 +152,44 @@ class Ecf_Sequence_Admin {
                 <?php submit_button(__('Add Sequence', 'woo-ecf-dgii')); ?>
             </form>
         </div>
+        <script>
+        jQuery(function($) {
+            var types = {
+                E: [
+                    {value: 'E31', label: 'E31 - Crédito Fiscal', prefix: 'E31'},
+                    {value: 'E32', label: 'E32 - Consumo', prefix: 'E32'},
+                    {value: 'E33', label: 'E33 - Nota de Débito', prefix: 'E33'},
+                    {value: 'E34', label: 'E34 - Nota de Crédito', prefix: 'E34'}
+                ],
+                B: [
+                    {value: 'E31', label: 'B01 - Crédito Fiscal', prefix: 'B01'},
+                    {value: 'E32', label: 'B02 - Consumo', prefix: 'B02'},
+                    {value: 'E33', label: 'B03 - Nota de Débito', prefix: 'B03'},
+                    {value: 'E34', label: 'B04 - Nota de Crédito', prefix: 'B04'}
+                ]
+            };
+
+            function updateTypes() {
+                var serie = $('#serie').val();
+                var $type = $('#ecf_type');
+                var $prefix = $('#prefix');
+                $type.empty();
+                $.each(types[serie] || [], function(_, t) {
+                    $type.append($('<option>', {value: t.value, text: t.label, 'data-prefix': t.prefix}));
+                });
+                updatePrefix();
+            }
+
+            function updatePrefix() {
+                var prefix = $('#ecf_type option:selected').data('prefix') || '';
+                $('#prefix').val(prefix);
+            }
+
+            $('#serie').on('change', updateTypes);
+            $('#ecf_type').on('change', updatePrefix);
+            updateTypes();
+        });
+        </script>
         <?php
     }
 

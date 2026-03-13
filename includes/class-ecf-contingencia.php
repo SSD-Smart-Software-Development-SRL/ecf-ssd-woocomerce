@@ -122,8 +122,9 @@ class Ecf_Contingencia {
 
     /**
      * Convert a contingencia order from B-series to a real eNCF.
+     * Submits synchronously and schedules polling.
      */
-    private static function convert_to_encf(\WC_Order $order): void {
+    public static function convert_to_encf(\WC_Order $order): bool {
         $ecf_type = $order->get_meta(Ecf_Order_Handler::META_ECF_TYPE) ?: 'E32';
 
         // Claim a new eNCF sequence
@@ -132,35 +133,52 @@ class Ecf_Contingencia {
             $order->add_order_note(
                 sprintf(__('ECF Recovery: No eNCF sequences available for %s. Skipping.', 'woo-ecf-dgii'), $ecf_type)
             );
-            return;
+            return false;
         }
 
-        $old_encf = $order->get_meta(Ecf_Order_Handler::META_ECF_ENCF);
-
-        // Update order with new eNCF
-        $order->update_meta_data(Ecf_Order_Handler::META_ECF_ENCF, $sequence['encf']);
-        $order->update_meta_data(Ecf_Order_Handler::META_ECF_STATUS, Ecf_Order_Handler::STATUS_PENDING);
-        $order->save();
+        $b_code = $order->get_meta(self::META_B_SERIES_CODE);
 
         $order->add_order_note(
             sprintf(
                 __('ECF Recovery: Converting from B-series %s to eNCF %s', 'woo-ecf-dgii'),
-                $order->get_meta(self::META_B_SERIES_CODE),
+                $b_code,
                 $sequence['encf']
             )
         );
 
-        // Schedule submission
-        as_schedule_single_action(
-            time(),
-            'ecf_dgii_submit_ecf',
-            ['order_id' => $order->get_id(), 'expiration_date' => $sequence['expiration_date']],
-            'ecf-dgii'
-        );
+        // Submit synchronously
+        try {
+            woo_ecf_dgii_autoloader();
+            $order->update_meta_data(Ecf_Order_Handler::META_ECF_ENCF, $sequence['encf']);
 
-        // Mark as conversion in progress
-        $order->update_meta_data(self::META_CONTINGENCIA_CONVERTED, 'yes');
-        $order->save();
+            $ecf = Ecf_Mapper::map_order($order, $ecf_type, $sequence['encf'], $sequence['expiration_date']);
+
+            $client = new Ecf_Api_Client();
+            $result = $client->submit_ecf($ecf);
+
+            $order->update_meta_data(Ecf_Order_Handler::META_ECF_STATUS, Ecf_Order_Handler::STATUS_SUBMITTING);
+            $order->update_meta_data(Ecf_Order_Handler::META_ECF_MESSAGE_ID, $result->getMessageId() ?? '');
+            $order->update_meta_data(self::META_CONTINGENCIA_CONVERTED, 'yes');
+            $order->save();
+
+            // Schedule async polling
+            as_schedule_single_action(
+                time(),
+                'ecf_dgii_poll_ecf',
+                ['order_id' => $order->get_id(), 'message_id' => $result->getMessageId()],
+                'ecf-dgii'
+            );
+
+            return true;
+        } catch (\Exception $e) {
+            $order->add_order_note(
+                sprintf(__('ECF Recovery failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+            );
+            // Revert — stay in contingencia
+            $order->update_meta_data(Ecf_Order_Handler::META_ECF_STATUS, Ecf_Order_Handler::STATUS_CONTINGENCIA);
+            $order->save();
+            return false;
+        }
     }
 
     /**
