@@ -15,12 +15,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Update version in plugin file
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          sed -i "s/^ \* Version: .*/ * Version: ${VERSION}/" woo-ecf-dgii.php
-          sed -i "s/define('WOO_ECF_DGII_VERSION', '.*')/define('WOO_ECF_DGII_VERSION', '${VERSION}')/" woo-ecf-dgii.php
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -44,6 +38,10 @@ jobs:
             --exclude='.github' \
             --exclude='.gitignore' \
             --exclude='.stubs.php' \
+            --exclude='.release-please*' \
+            --exclude='commitlint.config.js' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
             --exclude='dev/' \
             --exclude='tests/' \
             --exclude='docs/' \
