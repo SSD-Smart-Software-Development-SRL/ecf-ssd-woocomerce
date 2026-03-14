@@ -3,11 +3,12 @@
  * Plugin Name: WooCommerce ECF DGII
  * Plugin URI: https://github.com/puntoos/woo-ecf-dgii
  * Description: Electronic fiscal documents (ECF) for Dominican Republic via ECF SSD API. Automatically sends invoices to DGII when WooCommerce orders are paid.
- * Version: 0.1.0
+ * Version: 1.0.0
  * Requires at least: 6.2
  * Requires PHP: 8.1
  * Author: Puntoos
- * License: Proprietary
+ * License: GPLv3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: woo-ecf-dgii
  * Domain Path: /languages
  * WC requires at least: 8.0
@@ -16,7 +17,7 @@
 
 defined('ABSPATH') || exit;
 
-define('WOO_ECF_DGII_VERSION', '0.1.0');
+define('WOO_ECF_DGII_VERSION', '1.0.0');
 define('WOO_ECF_DGII_PLUGIN_FILE', __FILE__);
 define('WOO_ECF_DGII_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WOO_ECF_DGII_PLUGIN_URL', plugin_dir_url(__FILE__));
