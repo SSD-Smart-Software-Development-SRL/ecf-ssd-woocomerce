@@ -14,6 +14,7 @@ use Ecfx\EcfDgii\Model\Ecf34VersionType;
 use Ecfx\EcfDgii\Model\Ecf34CodigoModificacionType;
 use Ecfx\EcfDgii\Model\Ecf34IndicadorFacturacionType;
 use Ecfx\EcfDgii\Model\Ecf34IndicadorBienoServicioType;
+use Ecfx\EcfDgii\Model\Ecf34TipoPagoType;
 use Ecfx\EcfDgii\Model\Ecf34TipoIngresosValidationType;
 use Ecfx\EcfDgii\Model\TipoeCFType;
 use Ecfx\EcfDgii\Model\IndicadorMontoGravadoType;
@@ -30,9 +31,14 @@ class Ecf_Refund_Handler {
 
     public static function init(): void {
         add_action('woocommerce_order_refunded', [self::class, 'on_order_refunded'], 10, 2);
+        add_action('ecf_dgii_submit_refund_ecf', [self::class, 'async_submit_refund'], 10, 1);
         add_action('ecf_dgii_poll_refund_ecf', [self::class, 'async_poll_refund'], 10, 2);
     }
 
+    /**
+     * Hook: refund created. Claim sequence and schedule async submission.
+     * Must NOT block — this runs inside the WooCommerce refund AJAX handler.
+     */
     public static function on_order_refunded(int $order_id, int $refund_id): void {
         $order = wc_get_order($order_id);
         $refund = wc_get_order($refund_id);
@@ -60,13 +66,53 @@ class Ecf_Refund_Handler {
         }
 
         $refund->update_meta_data(self::META_REFUND_ECF_ENCF, $sequence['encf']);
+        $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'pending');
+        $refund->save();
 
-        // Submit synchronously (fire-and-forget)
+        // Schedule async submission — do NOT block the AJAX response
+        as_schedule_single_action(
+            time(),
+            'ecf_dgii_submit_refund_ecf',
+            ['refund_id' => $refund_id],
+            'ecf-dgii'
+        );
+
+        $order->add_order_note(
+            sprintf(
+                __('ECF: Credit note E34 scheduled — eNCF: %s', 'woo-ecf-dgii'),
+                $sequence['encf']
+            )
+        );
+    }
+
+    /**
+     * Async: submit the E34 credit note to DGII.
+     */
+    public static function async_submit_refund(int $refund_id): void {
+        woo_ecf_dgii_autoloader();
+
+        $refund = wc_get_order($refund_id);
+        if (!$refund) {
+            return;
+        }
+
+        $order = wc_get_order($refund->get_parent_id());
+        if (!$order) {
+            return;
+        }
+
+        $encf = $refund->get_meta(self::META_REFUND_ECF_ENCF);
+        if (!$encf) {
+            return;
+        }
+
+        $sequence_data = Ecf_Sequence_Manager::get_sequence_by_encf($encf);
+        $expiration_date = $sequence_data['expiration_date'] ?? date('Y-m-d', strtotime('+1 year'));
+
         try {
-            woo_ecf_dgii_autoloader();
             $original_encf = $order->get_meta(Ecf_Order_Handler::META_ECF_ENCF);
             $company_data = Ecf_Settings::get_company_data();
-            $ecf = self::build_credit_note($order, $refund, $sequence['encf'], $sequence['expiration_date'], $original_encf, $company_data);
+            $ecf = self::build_credit_note($order, $refund, $encf, $expiration_date, $original_encf, $company_data);
 
             $client = new Ecf_Api_Client();
             $result = $client->submit_ecf($ecf);
@@ -147,8 +193,8 @@ class Ecf_Refund_Handler {
     }
 
     private static function build_credit_note(
-        \WC_Order $order,
-        \WC_Order $refund,
+        \WC_Abstract_Order $order,
+        \WC_Abstract_Order $refund,
         string $encf,
         string $expiration_date,
         string $original_encf,
@@ -164,6 +210,7 @@ class Ecf_Refund_Handler {
         $id_doc = new Ecf34IdDoc();
         $id_doc->setTipoeCf(TipoeCFType::NOTA_DE_CREDITO_ELECTRONICA);
         $id_doc->setEncf($encf);
+        $id_doc->setTipoPago(Ecf34TipoPagoType::CONTADO);
         $id_doc->setTipoIngresos(Ecf34TipoIngresosValidationType::_01);
         $id_doc->setIndicadorMontoGravado(IndicadorMontoGravadoType::CON_ITBIS_INCLUIDO);
 

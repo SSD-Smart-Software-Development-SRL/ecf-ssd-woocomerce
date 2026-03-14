@@ -140,7 +140,9 @@ class Ecf_Admin_Order {
                 foreach ($refunds as $refund):
                     $ref_encf = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_ENCF);
                     $ref_status = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_STATUS);
-                    if ($ref_status === 'submitting') {
+                    if ($ref_status === 'pending') {
+                        $ref_status = self::try_submit_refund($refund);
+                    } elseif ($ref_status === 'submitting') {
                         $ref_status = self::try_poll_refund($refund);
                     }
                     $ref_codsec = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_CODSEC);
@@ -156,8 +158,12 @@ class Ecf_Admin_Order {
                     };
                     ?>
                     <hr style="margin:10px 0;">
-                    <p><strong><?php esc_html_e('Credit Note (E34)', 'woo-ecf-dgii'); ?></strong></p>
                     <p>
+                        <strong><?php esc_html_e('Credit Note (E34)', 'woo-ecf-dgii'); ?></strong>
+                        — <?php echo wp_kses_post(wc_price(abs((float) $refund->get_total()))); ?>
+                    </p>
+                    <p>
+                        <strong><?php esc_html_e('Status:', 'woo-ecf-dgii'); ?></strong>
                         <span class="ecf-status-badge <?php echo esc_attr($ref_status_label['class']); ?>">
                             <?php echo esc_html($ref_status_label['label']); ?>
                         </span>
@@ -217,7 +223,21 @@ class Ecf_Admin_Order {
         return Ecf_Order_Handler::STATUS_SUBMITTING;
     }
 
-    private static function try_poll_refund(\WC_Order $refund): string {
+    /**
+     * On-demand: if refund is pending, submit it now (Action Scheduler didn't fire).
+     */
+    private static function try_submit_refund(\WC_Abstract_Order $refund): string {
+        try {
+            Ecf_Refund_Handler::async_submit_refund($refund->get_id());
+            // Re-read status after submission
+            $refund = wc_get_order($refund->get_id());
+            return $refund ? ($refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_STATUS) ?: 'pending') : 'pending';
+        } catch (\Exception $e) {
+            return 'error';
+        }
+    }
+
+    private static function try_poll_refund(\WC_Abstract_Order $refund): string {
         $message_id = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_MESSAGE_ID);
         $status = $refund->get_meta(Ecf_Refund_Handler::META_REFUND_ECF_STATUS);
         if (!$message_id || $status !== 'submitting') {

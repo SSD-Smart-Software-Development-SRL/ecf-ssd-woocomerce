@@ -115,6 +115,24 @@ class Ecf_Sequence_Manager {
     }
 
     /**
+     * Look up the sequence that issued a given eNCF (for retrieving expiration_date).
+     */
+    public static function get_sequence_by_encf(string $encf): ?array {
+        global $wpdb;
+        $table = self::get_table_name();
+
+        // Extract prefix (first 3 chars, e.g. "E34" or "B04")
+        $prefix = substr($encf, 0, 3);
+
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$table} WHERE prefix = %s AND is_active = 1 ORDER BY id ASC LIMIT 1",
+            $prefix
+        ), ARRAY_A);
+
+        return $row ?: null;
+    }
+
+    /**
      * Deactivate a sequence.
      */
     public static function deactivate(int $id): void {
