@@ -1,0 +1,12 @@
+*** ECF DGII Invoicing for WooCommerce Changelog ***
+
+= 1.0.0 =
+* Initial release
+* E31 (Crédito Fiscal) and E32 (Consumo) automatic submission
+* E34 (Nota de Crédito) for refunds
+* eNCF sequence management with admin UI
+* Contingencia B-series fallback with automatic recovery
+* On-demand DGII status polling from order detail page
+* PDF invoice generation with QR codes
+* RNC/Cédula checkout fields for B2B orders
+* HPOS compatibility
