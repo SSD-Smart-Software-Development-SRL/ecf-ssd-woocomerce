@@ -21,10 +21,6 @@ jobs:
           php-version: '8.1'
           tools: composer:v2
 
-      - name: Configure Composer for SDK
-        run: |
-          composer config repositories.ecf-dgii vcs https://github.com/SSD-Smart-Software-Development-SRL/ecf_dgii.git
-
       - name: Install dependencies
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 

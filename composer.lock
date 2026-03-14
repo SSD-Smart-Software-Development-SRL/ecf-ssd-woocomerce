@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8dc0607c40fdc31c5079abf72081ae5b",
+    "content-hash": "44e38450847bf427c2c9e03e0ff41a51",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -323,10 +323,16 @@
         {
             "name": "ecfx/ecf-dgii-php",
             "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SSD-Smart-Software-Development-SRL/ecf-dgii-php.git",
+                "reference": "11e4ec93f1280cb31c801ddff7bc0041a0b57498"
+            },
             "dist": {
-                "type": "path",
-                "url": "../ecf_dgii_clients/php",
-                "reference": "8abe676a8884a6fdf0bdb295e1e207f32fa4e0fc"
+                "type": "zip",
+                "url": "https://api.github.com/repos/SSD-Smart-Software-Development-SRL/ecf-dgii-php/zipball/11e4ec93f1280cb31c801ddff7bc0041a0b57498",
+                "reference": "11e4ec93f1280cb31c801ddff7bc0041a0b57498",
+                "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -346,11 +352,7 @@
                     "Ecfx\\EcfDgii\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Ecfx\\EcfDgii\\Test\\": "test/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -361,7 +363,7 @@
                 }
             ],
             "description": "PHP SDK for the ECF DGII electronic fiscal receipt API (Dominican Republic)",
-            "homepage": "https://github.com/puntoos/ecf-dgii-php",
+            "homepage": "https://github.com/SSD-Smart-Software-Development-SRL/ecf-dgii-php",
             "keywords": [
                 "dgii",
                 "dominican-republic",
@@ -372,10 +374,11 @@
                 "php",
                 "sdk"
             ],
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/SSD-Smart-Software-Development-SRL/ecf-dgii-php/issues",
+                "source": "https://github.com/SSD-Smart-Software-Development-SRL/ecf-dgii-php/tree/v1.0.0"
+            },
+            "time": "2026-03-14T12:33:56+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
