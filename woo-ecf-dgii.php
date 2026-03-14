@@ -12,8 +12,9 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: woo-ecf-dgii
  * Domain Path: /languages
+ * Requires Plugins: woocommerce
  * WC requires at least: 8.0
- * WC tested up to: 9.0
+ * WC tested up to: 10.6
  */
 
 defined('ABSPATH') || exit;
