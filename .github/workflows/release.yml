@@ -14,6 +14,48 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog.txt
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          # Find the previous release tag
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | grep -v "${GITHUB_REF_NAME}" | head -1)
+
+          echo "*** ECF DGII Invoicing for WooCommerce Changelog ***" > changelog.txt
+          echo "" >> changelog.txt
+          echo "= ${VERSION} =" >> changelog.txt
+
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="${PREV_TAG}..${GITHUB_REF_NAME}"
+          else
+            RANGE="${GITHUB_REF_NAME}"
+          fi
+
+          # Extract conventional commit messages, format as changelog entries
+          git log "${RANGE}" --pretty=format:"%s" --no-merges | while IFS= read -r msg; do
+            # Skip chore/ci/docs/test/style commits
+            if echo "$msg" | grep -qE '^(chore|ci|docs|test|style)(\(.*\))?:'; then
+              continue
+            fi
+
+            # Format feat/fix/perf/refactor commits
+            if echo "$msg" | grep -qE '^(feat|fix|perf|refactor)(\(.*\))?!?:'; then
+              # Strip the conventional commit prefix
+              description=$(echo "$msg" | sed -E 's/^(feat|fix|perf|refactor)(\(.*\))?!?:\s*//')
+              echo "* ${description}" >> changelog.txt
+            fi
+          done
+
+          # If no conventional commits found, list all non-merge commits
+          if ! grep -q '^\*' changelog.txt; then
+            git log "${RANGE}" --pretty=format:"* %s" --no-merges >> changelog.txt
+          fi
+
+          echo "" >> changelog.txt
+          cat changelog.txt
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
