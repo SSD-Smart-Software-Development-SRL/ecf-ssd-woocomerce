@@ -1,0 +1,555 @@
+# Spanish (Dominican Republic) translation for ECF DGII Invoicing for WooCommerce.
+# Copyright (C) 2026 SSD
+# This file is distributed under the same license as the ECF DGII Invoicing for WooCommerce plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: ECF DGII Invoicing for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: contacto@ssd.com.do\n"
+"POT-Creation-Date: 2026-03-14 00:00+0000\n"
+"PO-Revision-Date: 2026-03-14 00:00+0000\n"
+"Last-Translator: SSD <contacto@ssd.com.do>\n"
+"Language-Team: Spanish (Dominican Republic) <contacto@ssd.com.do>\n"
+"Language: es_DO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. General
+#: includes/class-ecf-plugin.php
+msgid "WooCommerce ECF DGII requires WooCommerce to be installed and active."
+msgstr "ECF DGII requiere que WooCommerce esté instalado y activo."
+
+#: includes/class-ecf-admin-order.php
+msgid "Permission denied."
+msgstr "Permiso denegado."
+
+#: includes/class-ecf-admin-order.php
+msgid "Order not found."
+msgstr "Orden no encontrada."
+
+#: includes/class-ecf-mapper.php
+msgid "Refund"
+msgstr "Reembolso"
+
+#: includes/class-ecf-mapper.php
+msgid "Shipping"
+msgstr "Envío"
+
+#. ECF Status labels
+#: includes/class-ecf-admin-order.php
+msgid "Not sent"
+msgstr "No enviado"
+
+#: includes/class-ecf-admin-order.php
+msgid "Pending"
+msgstr "Pendiente"
+
+#: includes/class-ecf-admin-order.php
+msgid "Submitting"
+msgstr "Enviando"
+
+#: includes/class-ecf-admin-order.php
+msgid "Accepted"
+msgstr "Aceptado"
+
+#: includes/class-ecf-admin-order.php
+msgid "Rejected"
+msgstr "Rechazado"
+
+#: includes/class-ecf-admin-order.php
+msgid "Error"
+msgstr "Error"
+
+#: includes/class-ecf-admin-order.php
+msgid "Contingencia"
+msgstr "Contingencia"
+
+#: includes/class-ecf-admin-order.php
+msgid "Processing"
+msgstr "Procesando"
+
+#: includes/class-ecf-admin-order.php
+msgid "Sending..."
+msgstr "Enviando..."
+
+#. Admin Order Metabox
+#: includes/class-ecf-admin-order.php
+msgid "ECF DGII"
+msgstr "ECF DGII"
+
+#: includes/class-ecf-admin-order.php
+msgid "Status:"
+msgstr "Estado:"
+
+#: includes/class-ecf-admin-order.php
+msgid "Type:"
+msgstr "Tipo:"
+
+#: includes/class-ecf-admin-order.php
+msgid "Buyer RNC:"
+msgstr "RNC Comprador:"
+
+#: includes/class-ecf-admin-order.php
+msgid "Buyer:"
+msgstr "Comprador:"
+
+#: includes/class-ecf-admin-order.php
+msgid "eNCF:"
+msgstr "eNCF:"
+
+#: includes/class-ecf-admin-order.php
+msgid "Security Code:"
+msgstr "Código de Seguridad:"
+
+#: includes/class-ecf-admin-order.php
+msgid "Errors:"
+msgstr "Errores:"
+
+#: includes/class-ecf-admin-order.php
+msgid "Download Invoice"
+msgstr "Descargar Factura"
+
+#: includes/class-ecf-admin-order.php
+msgid "Send ECF"
+msgstr "Enviar ECF"
+
+#: includes/class-ecf-admin-order.php
+msgid "Credit Note (E34)"
+msgstr "Nota de Crédito (E34)"
+
+#. Order Notes
+#: includes/class-ecf-order-handler.php
+msgid "ECF accepted! eNCF: %s, Security Code: %s"
+msgstr "ECF aceptado! eNCF: %s, Código de Seguridad: %s"
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF rejected: %s"
+msgstr "ECF rechazado: %s"
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF polling timed out."
+msgstr "ECF tiempo de espera agotado."
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF polling failed: %s"
+msgstr "ECF consulta fallida: %s"
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF submission failed: %s"
+msgstr "ECF envío fallido: %s"
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF Error: No available eNCF sequences for %s."
+msgstr "ECF Error: No hay secuencias eNCF disponibles para %s."
+
+#: includes/class-ecf-sequence-manager.php
+msgid "No available eNCF sequences for type "
+msgstr "No hay secuencias eNCF disponibles para el tipo "
+
+#. Credit Notes
+#: includes/class-ecf-refund-handler.php
+msgid "ECF: Cannot generate credit note — original ECF not accepted."
+msgstr "ECF: No se puede generar nota de crédito — el ECF original no fue aceptado."
+
+#: includes/class-ecf-refund-handler.php
+msgid "ECF: Credit note E34 scheduled — eNCF: %s"
+msgstr "ECF: Nota de crédito E34 programada — eNCF: %s"
+
+#: includes/class-ecf-refund-handler.php
+msgid "ECF Credit Note accepted! eNCF: %s, Security Code: %s"
+msgstr "ECF Nota de Crédito aceptada! eNCF: %s, Código de Seguridad: %s"
+
+#: includes/class-ecf-refund-handler.php
+msgid "ECF Credit Note rejected: %s"
+msgstr "ECF Nota de Crédito rechazada: %s"
+
+#: includes/class-ecf-refund-handler.php
+msgid "ECF Credit Note polling timed out."
+msgstr "ECF Nota de Crédito tiempo de espera agotado."
+
+#: includes/class-ecf-refund-handler.php
+msgid "ECF Credit Note failed: %s"
+msgstr "ECF Nota de Crédito fallida: %s"
+
+#: includes/class-ecf-refund-handler.php
+msgid "ECF Credit Note submission failed: %s"
+msgstr "ECF Nota de Crédito envío fallido: %s"
+
+#: includes/class-ecf-refund-handler.php
+msgid "No available eNCF sequences for E34."
+msgstr "No hay secuencias eNCF disponibles para E34."
+
+#: includes/class-ecf-refund-handler.php
+msgid "ECF Error: No available E34 sequences for credit note."
+msgstr "ECF Error: No hay secuencias E34 disponibles para nota de crédito."
+
+#. Contingencia
+#: includes/class-ecf-order-handler.php
+msgid "Contingencia failed: No B-series codes available."
+msgstr "Contingencia fallida: No hay códigos de serie B disponibles."
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF CRITICAL: No B-series codes available for contingencia!"
+msgstr "ECF CRÍTICO: ¡No hay códigos de serie B disponibles para contingencia!"
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF: Entered contingencia mode. B-series code: %s. Will auto-convert when API recovers."
+msgstr "ECF: Modo contingencia activado. Código serie B: %s. Se convertirá automáticamente cuando la API se recupere."
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF Recovery: No eNCF sequences available for %s. Skipping."
+msgstr "ECF Recuperación: No hay secuencias eNCF disponibles para %s. Omitiendo."
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF Recovery: Converting from B-series %s to eNCF %s"
+msgstr "ECF Recuperación: Convirtiendo de serie B %s a eNCF %s"
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF Recovery failed: %s"
+msgstr "ECF Recuperación fallida: %s"
+
+#: includes/class-ecf-order-handler.php
+msgid "ECF DGII: Low B-series stock for %s — only %d codes remaining."
+msgstr "ECF DGII: Stock bajo de serie B para %s — solo quedan %d códigos."
+
+#. Contingencia Admin
+#: includes/class-ecf-admin-order.php
+msgid "ECF Contingencia"
+msgstr "ECF Contingencia"
+
+#: includes/class-ecf-admin-order.php
+msgid "ECF Contingencia — B-Series Orders"
+msgstr "ECF Contingencia — Órdenes Serie B"
+
+#: includes/class-ecf-admin-order.php
+msgid "%d order(s) submitted to DGII."
+msgstr "%d orden(es) enviada(s) a DGII."
+
+#: includes/class-ecf-admin-order.php
+msgid "Submit selected orders to DGII?"
+msgstr "¿Enviar las órdenes seleccionadas a DGII?"
+
+#: includes/class-ecf-admin-order.php
+msgid "Submit Selected to DGII"
+msgstr "Enviar Seleccionadas a DGII"
+
+#: includes/class-ecf-admin-order.php
+msgid "Select All"
+msgstr "Seleccionar Todo"
+
+#: includes/class-ecf-admin-order.php
+msgid "No orders in contingencia mode."
+msgstr "No hay órdenes en modo contingencia."
+
+#: includes/class-ecf-admin-order.php
+msgid "No orders selected."
+msgstr "No se seleccionaron órdenes."
+
+#: includes/class-ecf-admin-order.php
+msgid "Order"
+msgstr "Orden"
+
+#: includes/class-ecf-admin-order.php
+msgid "Date"
+msgstr "Fecha"
+
+#: includes/class-ecf-admin-order.php
+msgid "Customer"
+msgstr "Cliente"
+
+#: includes/class-ecf-admin-order.php
+msgid "Total"
+msgstr "Total"
+
+#: includes/class-ecf-admin-order.php
+msgid "ECF Type"
+msgstr "Tipo ECF"
+
+#: includes/class-ecf-admin-order.php
+msgid "B-Series Code"
+msgstr "Código Serie B"
+
+#: includes/class-ecf-admin-order.php
+msgid "Original eNCF"
+msgstr "eNCF Original"
+
+#. Sequence Admin
+#: includes/class-ecf-sequence-admin.php
+msgid "ECF Sequences"
+msgstr "Secuencias ECF"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "ECF eNCF Sequences"
+msgstr "Secuencias eNCF ECF"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Sequence added successfully."
+msgstr "Secuencia agregada exitosamente."
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Sequence deactivated."
+msgstr "Secuencia desactivada."
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Active Sequences"
+msgstr "Secuencias Activas"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Type"
+msgstr "Tipo"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Serie"
+msgstr "Serie"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Prefix"
+msgstr "Prefijo"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Start"
+msgstr "Inicio"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "End"
+msgstr "Fin"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Current"
+msgstr "Actual"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Remaining"
+msgstr "Restante"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Expiry Date"
+msgstr "Fecha de Expiración"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Status"
+msgstr "Estado"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Actions"
+msgstr "Acciones"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Expired"
+msgstr "Expirado"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Exhausted"
+msgstr "Agotado"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Active"
+msgstr "Activo"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Deactivate"
+msgstr "Desactivar"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Deactivate this sequence?"
+msgstr "¿Desactivar esta secuencia?"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "No sequences found. Add one below."
+msgstr "No se encontraron secuencias. Agregue una abajo."
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Add New Sequence"
+msgstr "Agregar Nueva Secuencia"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Range Start"
+msgstr "Inicio del Rango"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Range End"
+msgstr "Fin del Rango"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Expiration Date"
+msgstr "Fecha de Expiración"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Add Sequence"
+msgstr "Agregar Secuencia"
+
+#: includes/class-ecf-sequence-admin.php
+msgid "All fields are required."
+msgstr "Todos los campos son requeridos."
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Range start must be less than range end."
+msgstr "El inicio del rango debe ser menor que el fin del rango."
+
+#: includes/class-ecf-sequence-admin.php
+msgid "Invalid ECF type."
+msgstr "Tipo de ECF inválido."
+
+#. Checkout Fields
+#: includes/class-ecf-plugin.php
+msgid "Fiscal Information"
+msgstr "Información Fiscal"
+
+#: includes/class-ecf-plugin.php
+msgid "RNC o Cédula"
+msgstr "RNC o Cédula"
+
+#: includes/class-ecf-plugin.php
+msgid "Optional - Required for orders >= 250,000 DOP"
+msgstr "Opcional - Requerido para órdenes >= 250,000 DOP"
+
+#: includes/class-ecf-plugin.php
+msgid "Razón Social"
+msgstr "Razón Social"
+
+#: includes/class-ecf-plugin.php
+msgid "Tipo de Comprobante"
+msgstr "Tipo de Comprobante"
+
+#: includes/class-ecf-plugin.php
+msgid "Crédito Fiscal (E31)"
+msgstr "Crédito Fiscal (E31)"
+
+#: includes/class-ecf-plugin.php
+msgid "Consumo (E32)"
+msgstr "Consumo (E32)"
+
+#: includes/class-ecf-plugin.php
+msgid "RNC o Cédula is required for orders of 250,000 DOP or more."
+msgstr "RNC o Cédula es requerido para órdenes de 250,000 DOP o más."
+
+#: includes/class-ecf-plugin.php
+msgid "RNC must be 9 digits or Cédula must be 11 digits."
+msgstr "El RNC debe tener 9 dígitos o la Cédula debe tener 11 dígitos."
+
+#: includes/class-ecf-plugin.php
+msgid "Razón Social is required when RNC or Cédula is provided."
+msgstr "La Razón Social es requerida cuando se proporciona RNC o Cédula."
+
+#: includes/class-ecf-plugin.php
+msgid "RNC o Cédula (required for this order)"
+msgstr "RNC o Cédula (requerido para esta orden)"
+
+#. Settings
+#: includes/class-ecf-settings.php
+msgid "API Connection"
+msgstr "Conexión API"
+
+#: includes/class-ecf-settings.php
+msgid "Configure your ECF SSD API connection."
+msgstr "Configure su conexión a la API ECF SSD."
+
+#: includes/class-ecf-settings.php
+msgid "Environment"
+msgstr "Ambiente"
+
+#: includes/class-ecf-settings.php
+msgid "Test"
+msgstr "Prueba"
+
+#: includes/class-ecf-settings.php
+msgid "Certification"
+msgstr "Certificación"
+
+#: includes/class-ecf-settings.php
+msgid "Production"
+msgstr "Producción"
+
+#: includes/class-ecf-settings.php
+msgid "Select the ECF SSD API environment. (Test/Cert visible in debug mode)"
+msgstr "Seleccione el ambiente de la API ECF SSD. (Prueba/Cert visible en modo depuración)"
+
+#: includes/class-ecf-settings.php
+msgid "API Token"
+msgstr "Token API"
+
+#: includes/class-ecf-settings.php
+msgid "Your ECF SSD API authentication token."
+msgstr "Su token de autenticación de la API ECF SSD."
+
+#: includes/class-ecf-settings.php
+msgid "Company RNC"
+msgstr "RNC de la Empresa"
+
+#: includes/class-ecf-settings.php
+msgid "Your company RNC. Cannot be changed once saved."
+msgstr "RNC de su empresa. No se puede cambiar una vez guardado."
+
+#: includes/class-ecf-settings.php
+msgid "Legal Name (Razón Social)"
+msgstr "Nombre Legal (Razón Social)"
+
+#: includes/class-ecf-settings.php
+msgid "Company legal name as registered with DGII."
+msgstr "Nombre legal de la empresa registrado ante la DGII."
+
+#: includes/class-ecf-settings.php
+msgid "Commercial Name"
+msgstr "Nombre Comercial"
+
+#: includes/class-ecf-settings.php
+msgid "Company commercial name (optional)."
+msgstr "Nombre comercial de la empresa (opcional)."
+
+#: includes/class-ecf-settings.php
+msgid "Company Address"
+msgstr "Dirección de la Empresa"
+
+#: includes/class-ecf-settings.php
+msgid "Company address as registered with DGII."
+msgstr "Dirección de la empresa registrada ante la DGII."
+
+#: includes/class-ecf-settings.php
+msgid "General Settings"
+msgstr "Configuración General"
+
+#: includes/class-ecf-settings.php
+msgid "Default ECF Type (when RNC provided)"
+msgstr "Tipo ECF por Defecto (cuando se proporciona RNC)"
+
+#: includes/class-ecf-settings.php
+msgid "E31 - Crédito Fiscal"
+msgstr "E31 - Crédito Fiscal"
+
+#: includes/class-ecf-settings.php
+msgid "E32 - Consumo"
+msgstr "E32 - Consumo"
+
+#: includes/class-ecf-settings.php
+msgid "Max retries before contingencia"
+msgstr "Máximo de reintentos antes de contingencia"
+
+#: includes/class-ecf-settings.php
+msgid "Number of retry attempts before falling back to B-series."
+msgstr "Número de reintentos antes de recurrir a la serie B."
+
+#: includes/class-ecf-settings.php
+msgid "Retry interval (seconds)"
+msgstr "Intervalo de reintento (segundos)"
+
+#: includes/class-ecf-settings.php
+msgid "Test Connection"
+msgstr "Probar Conexión"
+
+#: includes/class-ecf-settings.php
+msgid "Testing..."
+msgstr "Probando..."
+
+#: includes/class-ecf-settings.php
+msgid "Connected! Company: %s"
+msgstr "¡Conectado! Empresa: %s"
+
+#. Invoice
+#: includes/class-ecf-invoice-generator.php
+msgid "Invoice only available for accepted ECFs."
+msgstr "La factura solo está disponible para ECFs aceptados."
+
+#: includes/class-ecf-invoice-generator.php
+msgid "Envío"
+msgstr "Envío"

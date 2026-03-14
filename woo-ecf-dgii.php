@@ -47,6 +47,11 @@ add_action('before_woocommerce_init', function () {
     }
 });
 
+// Load translations
+add_action('init', function () {
+    load_plugin_textdomain('ecf-dgii-invoicing', false, dirname(plugin_basename(__FILE__)) . '/languages');
+});
+
 // Check WooCommerce is active before initializing
 add_action('plugins_loaded', function () {
     if (!class_exists('WooCommerce')) {
