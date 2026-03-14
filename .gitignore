@@ -1,4 +1,9 @@
 /vendor/
+/node_modules/
 .idea/
 .vscode/
 *.log
+.stubs.php
+.DS_Store
+*.swp
+*.swo
