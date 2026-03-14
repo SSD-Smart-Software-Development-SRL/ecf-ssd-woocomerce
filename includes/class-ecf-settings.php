@@ -4,6 +4,8 @@ defined('ABSPATH') || exit;
 class Ecf_Settings {
 
     public const OPTION_API_TOKEN = 'ecf_dgii_api_token';
+    public const OPTION_API_TOKEN_TEST = 'ecf_dgii_api_token_test';
+    public const OPTION_API_TOKEN_PROD = 'ecf_dgii_api_token_prod';
     public const OPTION_ENVIRONMENT = 'ecf_dgii_environment';
     public const OPTION_COMPANY_RNC = 'ecf_dgii_company_rnc';
     public const OPTION_COMPANY_DATA = 'ecf_dgii_company_data';
@@ -16,7 +18,6 @@ class Ecf_Settings {
 
     private const ENVIRONMENTS = [
         'test' => 'https://api.test.ecfx.ssd.com.do',
-        'cert' => 'https://api.cert.ecfx.ssd.com.do',
         'prod' => 'https://api.prod.ecfx.ssd.com.do',
     ];
 
@@ -33,15 +34,9 @@ class Ecf_Settings {
     }
 
     private static function get_environment_options(): array {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            return [
-                'test' => __('Test', 'ecf-dgii-invoicing'),
-                'cert' => __('Certification', 'ecf-dgii-invoicing'),
-                'prod' => __('Production', 'ecf-dgii-invoicing'),
-            ];
-        }
         return [
             'prod' => __('Production', 'ecf-dgii-invoicing'),
+            'test' => __('Test', 'ecf-dgii-invoicing'),
         ];
     }
 
@@ -51,7 +46,16 @@ class Ecf_Settings {
     }
 
     public static function get_api_token(): string {
-        return get_option(self::OPTION_API_TOKEN, '');
+        $env = get_option(self::OPTION_ENVIRONMENT, 'prod');
+        $env_token_key = 'ecf_dgii_api_token_' . $env;
+        $token = get_option($env_token_key, '');
+
+        // Fallback to legacy single token for backward compatibility
+        if (empty($token)) {
+            $token = get_option(self::OPTION_API_TOKEN, '');
+        }
+
+        return $token;
     }
 
     public static function get_company_rnc(): string {
@@ -72,24 +76,35 @@ class Ecf_Settings {
                 'id'   => 'ecf_dgii_section_api',
                 'name' => __('API Connection', 'ecf-dgii-invoicing'),
                 'type' => 'title',
-                'desc' => __('Configure your ECF SSD API connection.', 'ecf-dgii-invoicing'),
+                'desc' => sprintf(
+                    /* translators: %s: documentation URL */
+                    __('Configure your ECF SSD API connection. <a href="%s" target="_blank">Setup guide &rarr;</a>', 'ecf-dgii-invoicing'),
+                    'https://ecf.ssd.com.do/documentacion/int-woo'
+                ),
             ],
             self::OPTION_ENVIRONMENT => [
                 'id'      => self::OPTION_ENVIRONMENT,
                 'name'    => __('Environment', 'ecf-dgii-invoicing'),
                 'type'    => 'select',
                 'options' => self::get_environment_options(),
-                'default' => defined('WP_DEBUG') && WP_DEBUG ? 'test' : 'prod',
-                'desc'    => defined('WP_DEBUG') && WP_DEBUG
-                    ? __('Select the ECF SSD API environment. (Test/Cert visible in debug mode)', 'ecf-dgii-invoicing')
-                    : '',
+                'default' => 'prod',
+                'desc'    => __('Select the active ECF SSD API environment.', 'ecf-dgii-invoicing'),
             ],
-            self::OPTION_API_TOKEN => [
-                'id'   => self::OPTION_API_TOKEN,
-                'name' => __('API Token', 'ecf-dgii-invoicing'),
+            self::OPTION_API_TOKEN_PROD => [
+                'id'   => self::OPTION_API_TOKEN_PROD,
+                'name' => __('Production API Token', 'ecf-dgii-invoicing'),
                 'type' => 'password',
-                'desc' => __('Your ECF SSD API authentication token.', 'ecf-dgii-invoicing'),
+                'desc' => __('API token for the Production environment.', 'ecf-dgii-invoicing'),
             ],
+            self::OPTION_API_TOKEN_TEST => [
+                'id'   => self::OPTION_API_TOKEN_TEST,
+                'name' => __('Test API Token', 'ecf-dgii-invoicing'),
+                'type' => 'password',
+                'desc' => __('API token for the Test environment.', 'ecf-dgii-invoicing'),
+            ],
+        ];
+
+        $fields += [
             self::OPTION_COMPANY_RNC => [
                 'id'                => self::OPTION_COMPANY_RNC,
                 'name'              => __('Company RNC', 'ecf-dgii-invoicing'),
