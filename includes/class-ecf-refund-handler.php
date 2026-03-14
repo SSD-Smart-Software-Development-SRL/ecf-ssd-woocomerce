@@ -51,7 +51,7 @@ class Ecf_Refund_Handler {
         $original_status = $order->get_meta(Ecf_Order_Handler::META_ECF_STATUS);
         if (!$original_encf || $original_status !== Ecf_Order_Handler::STATUS_ACCEPTED) {
             $order->add_order_note(
-                __('ECF: Cannot generate credit note — original ECF not accepted.', 'woo-ecf-dgii')
+                __('ECF: Cannot generate credit note — original ECF not accepted.', 'ecf-dgii-invoicing')
             );
             return;
         }
@@ -59,9 +59,9 @@ class Ecf_Refund_Handler {
         $sequence = Ecf_Sequence_Manager::claim_next('E34');
         if (!$sequence) {
             $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
-            $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, __('No available eNCF sequences for E34.', 'woo-ecf-dgii'));
+            $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, __('No available eNCF sequences for E34.', 'ecf-dgii-invoicing'));
             $refund->save();
-            $order->add_order_note(__('ECF Error: No available E34 sequences for credit note.', 'woo-ecf-dgii'));
+            $order->add_order_note(__('ECF Error: No available E34 sequences for credit note.', 'ecf-dgii-invoicing'));
             return;
         }
 
@@ -79,7 +79,7 @@ class Ecf_Refund_Handler {
 
         $order->add_order_note(
             sprintf(
-                __('ECF: Credit note E34 scheduled — eNCF: %s', 'woo-ecf-dgii'),
+                __('ECF: Credit note E34 scheduled — eNCF: %s', 'ecf-dgii-invoicing'),
                 $sequence['encf']
             )
         );
@@ -133,7 +133,7 @@ class Ecf_Refund_Handler {
             $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $e->getMessage());
             $refund->save();
             $order->add_order_note(
-                sprintf(__('ECF Credit Note submission failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+                sprintf(__('ECF Credit Note submission failed: %s', 'ecf-dgii-invoicing'), $e->getMessage())
             );
         }
     }
@@ -164,7 +164,7 @@ class Ecf_Refund_Handler {
 
             $order->add_order_note(
                 sprintf(
-                    __('ECF Credit Note accepted! eNCF: %s, Security Code: %s', 'woo-ecf-dgii'),
+                    __('ECF Credit Note accepted! eNCF: %s, Security Code: %s', 'ecf-dgii-invoicing'),
                     $encf,
                     $result->getCodSec() ?? 'N/A'
                 )
@@ -175,19 +175,19 @@ class Ecf_Refund_Handler {
             $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $ecf_response ? ($ecf_response->getErrors() ?? $e->getMessage()) : $e->getMessage());
             $refund->save();
             $order->add_order_note(
-                sprintf(__('ECF Credit Note rejected: %s', 'woo-ecf-dgii'), $e->getMessage())
+                sprintf(__('ECF Credit Note rejected: %s', 'ecf-dgii-invoicing'), $e->getMessage())
             );
         } catch (EcfPollingTimeoutException $e) {
             $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
             $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $e->getMessage());
             $refund->save();
-            $order->add_order_note(__('ECF Credit Note polling timed out.', 'woo-ecf-dgii'));
+            $order->add_order_note(__('ECF Credit Note polling timed out.', 'ecf-dgii-invoicing'));
         } catch (\Exception $e) {
             $refund->update_meta_data(self::META_REFUND_ECF_STATUS, 'error');
             $refund->update_meta_data(self::META_REFUND_ECF_ERRORS, $e->getMessage());
             $refund->save();
             $order->add_order_note(
-                sprintf(__('ECF Credit Note failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+                sprintf(__('ECF Credit Note failed: %s', 'ecf-dgii-invoicing'), $e->getMessage())
             );
         }
     }
@@ -295,7 +295,7 @@ class Ecf_Refund_Handler {
         if (empty($items)) {
             $ecf_item = new Ecf34Item();
             $ecf_item->setNumeroLinea(1);
-            $ecf_item->setNombreItem(__('Refund', 'woo-ecf-dgii'));
+            $ecf_item->setNombreItem(__('Refund', 'ecf-dgii-invoicing'));
             $ecf_item->setIndicadorFacturacion(Ecf34IndicadorFacturacionType::ITBIS1_18_PERCENT);
             $ecf_item->setIndicadorBienoServicio(Ecf34IndicadorBienoServicioType::SERVICIO);
             $ecf_item->setCantidadItem(1.0);

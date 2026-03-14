@@ -24,14 +24,14 @@ class Ecf_Checkout_Fields {
         $default_ecf_type = get_option(Ecf_Settings::OPTION_DEFAULT_ECF_TYPE, 'E31');
 
         echo '<div id="ecf-dgii-checkout-fields">';
-        echo '<h3>' . esc_html__('Fiscal Information', 'woo-ecf-dgii') . '</h3>';
+        echo '<h3>' . esc_html__('Fiscal Information', 'ecf-dgii-invoicing') . '</h3>';
 
         // RNC o Cédula
         woocommerce_form_field('ecf_rnc_comprador', [
             'type' => 'text',
             'class' => ['form-row-wide'],
-            'label' => __('RNC o Cédula', 'woo-ecf-dgii'),
-            'placeholder' => __('Optional - Required for orders >= 250,000 DOP', 'woo-ecf-dgii'),
+            'label' => __('RNC o Cédula', 'ecf-dgii-invoicing'),
+            'placeholder' => __('Optional - Required for orders >= 250,000 DOP', 'ecf-dgii-invoicing'),
             'required' => false,
             'custom_attributes' => [
                 'maxlength' => '11',
@@ -43,7 +43,7 @@ class Ecf_Checkout_Fields {
         woocommerce_form_field('ecf_razon_social', [
             'type' => 'text',
             'class' => ['form-row-wide', 'ecf-rnc-dependent'],
-            'label' => __('Razón Social', 'woo-ecf-dgii'),
+            'label' => __('Razón Social', 'ecf-dgii-invoicing'),
             'required' => false,
         ], $checkout->get_value('ecf_razon_social'));
 
@@ -51,11 +51,11 @@ class Ecf_Checkout_Fields {
         woocommerce_form_field('ecf_tipo_comprobante', [
             'type' => 'select',
             'class' => ['form-row-wide', 'ecf-rnc-dependent'],
-            'label' => __('Tipo de Comprobante', 'woo-ecf-dgii'),
+            'label' => __('Tipo de Comprobante', 'ecf-dgii-invoicing'),
             'required' => false,
             'options' => [
-                'E31' => __('Crédito Fiscal (E31)', 'woo-ecf-dgii'),
-                'E32' => __('Consumo (E32)', 'woo-ecf-dgii'),
+                'E31' => __('Crédito Fiscal (E31)', 'ecf-dgii-invoicing'),
+                'E32' => __('Consumo (E32)', 'ecf-dgii-invoicing'),
             ],
             'default' => $default_ecf_type,
         ], $checkout->get_value('ecf_tipo_comprobante'));
@@ -76,7 +76,7 @@ class Ecf_Checkout_Fields {
         // If total >= 250,000 DOP, RNC is mandatory
         if ($total >= 250000 && empty($rnc)) {
             wc_add_notice(
-                __('RNC o Cédula is required for orders of 250,000 DOP or more.', 'woo-ecf-dgii'),
+                __('RNC o Cédula is required for orders of 250,000 DOP or more.', 'ecf-dgii-invoicing'),
                 'error'
             );
             return;
@@ -89,7 +89,7 @@ class Ecf_Checkout_Fields {
 
             if ($len !== 9 && $len !== 11) {
                 wc_add_notice(
-                    __('RNC must be 9 digits or Cédula must be 11 digits.', 'woo-ecf-dgii'),
+                    __('RNC must be 9 digits or Cédula must be 11 digits.', 'ecf-dgii-invoicing'),
                     'error'
                 );
                 return;
@@ -98,7 +98,7 @@ class Ecf_Checkout_Fields {
             // Razón Social required when RNC is provided
             if (empty($razon_social)) {
                 wc_add_notice(
-                    __('Razón Social is required when RNC or Cédula is provided.', 'woo-ecf-dgii'),
+                    __('Razón Social is required when RNC or Cédula is provided.', 'ecf-dgii-invoicing'),
                     'error'
                 );
             }
@@ -145,8 +145,8 @@ class Ecf_Checkout_Fields {
 
         wp_localize_script('ecf-dgii-checkout', 'ecfDgiiCheckout', [
             'maxWithoutRnc' => 250000,
-            'requiredMessage' => __('RNC o Cédula (required for this order)', 'woo-ecf-dgii'),
-            'optionalMessage' => __('RNC o Cédula', 'woo-ecf-dgii'),
+            'requiredMessage' => __('RNC o Cédula (required for this order)', 'ecf-dgii-invoicing'),
+            'optionalMessage' => __('RNC o Cédula', 'ecf-dgii-invoicing'),
         ]);
     }
 }

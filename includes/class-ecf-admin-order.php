@@ -19,7 +19,7 @@ class Ecf_Admin_Order {
 
         add_meta_box(
             'ecf-dgii-status',
-            __('ECF DGII', 'woo-ecf-dgii'),
+            __('ECF DGII', 'ecf-dgii-invoicing'),
             [self::class, 'render_metabox'],
             $screen,
             'side',
@@ -33,7 +33,7 @@ class Ecf_Admin_Order {
             : wc_get_order($post_or_order->ID);
 
         if (!$order) {
-            echo '<p>' . esc_html__('Order not found.', 'woo-ecf-dgii') . '</p>';
+            echo '<p>' . esc_html__('Order not found.', 'ecf-dgii-invoicing') . '</p>';
             return;
         }
 
@@ -52,48 +52,48 @@ class Ecf_Admin_Order {
         $razon_social = $order->get_meta(Ecf_Order_Handler::META_ECF_RAZON_SOCIAL);
 
         $status_labels = [
-            'none' => ['label' => __('Not sent', 'woo-ecf-dgii'), 'class' => 'ecf-status-none'],
-            Ecf_Order_Handler::STATUS_PENDING => ['label' => __('Pending', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
-            Ecf_Order_Handler::STATUS_SUBMITTING => ['label' => __('Submitting', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
-            Ecf_Order_Handler::STATUS_ACCEPTED => ['label' => __('Accepted', 'woo-ecf-dgii'), 'class' => 'ecf-status-accepted'],
-            Ecf_Order_Handler::STATUS_REJECTED => ['label' => __('Rejected', 'woo-ecf-dgii'), 'class' => 'ecf-status-rejected'],
-            Ecf_Order_Handler::STATUS_ERROR => ['label' => __('Error', 'woo-ecf-dgii'), 'class' => 'ecf-status-error'],
-            Ecf_Order_Handler::STATUS_CONTINGENCIA => ['label' => __('Contingencia', 'woo-ecf-dgii'), 'class' => 'ecf-status-contingencia'],
+            'none' => ['label' => __('Not sent', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-none'],
+            Ecf_Order_Handler::STATUS_PENDING => ['label' => __('Pending', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-pending'],
+            Ecf_Order_Handler::STATUS_SUBMITTING => ['label' => __('Submitting', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-pending'],
+            Ecf_Order_Handler::STATUS_ACCEPTED => ['label' => __('Accepted', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-accepted'],
+            Ecf_Order_Handler::STATUS_REJECTED => ['label' => __('Rejected', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-rejected'],
+            Ecf_Order_Handler::STATUS_ERROR => ['label' => __('Error', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-error'],
+            Ecf_Order_Handler::STATUS_CONTINGENCIA => ['label' => __('Contingencia', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-contingencia'],
         ];
 
         $s = $status_labels[$status] ?? $status_labels['none'];
         ?>
         <div class="ecf-metabox">
             <p>
-                <strong><?php esc_html_e('Status:', 'woo-ecf-dgii'); ?></strong>
+                <strong><?php esc_html_e('Status:', 'ecf-dgii-invoicing'); ?></strong>
                 <span class="ecf-status-badge <?php echo esc_attr($s['class']); ?>">
                     <?php echo esc_html($s['label']); ?>
                 </span>
             </p>
 
             <?php if ($ecf_type): ?>
-                <p><strong><?php esc_html_e('Type:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($ecf_type); ?></p>
+                <p><strong><?php esc_html_e('Type:', 'ecf-dgii-invoicing'); ?></strong> <?php echo esc_html($ecf_type); ?></p>
             <?php endif; ?>
 
             <?php if ($rnc_comprador): ?>
-                <p><strong><?php esc_html_e('Buyer RNC:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($rnc_comprador); ?></p>
+                <p><strong><?php esc_html_e('Buyer RNC:', 'ecf-dgii-invoicing'); ?></strong> <?php echo esc_html($rnc_comprador); ?></p>
             <?php endif; ?>
 
             <?php if ($razon_social): ?>
-                <p><strong><?php esc_html_e('Buyer:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($razon_social); ?></p>
+                <p><strong><?php esc_html_e('Buyer:', 'ecf-dgii-invoicing'); ?></strong> <?php echo esc_html($razon_social); ?></p>
             <?php endif; ?>
 
             <?php if ($encf): ?>
-                <p><strong><?php esc_html_e('eNCF:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($encf); ?></p>
+                <p><strong><?php esc_html_e('eNCF:', 'ecf-dgii-invoicing'); ?></strong> <?php echo esc_html($encf); ?></p>
             <?php endif; ?>
 
             <?php if ($codsec): ?>
-                <p><strong><?php esc_html_e('Security Code:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($codsec); ?></p>
+                <p><strong><?php esc_html_e('Security Code:', 'ecf-dgii-invoicing'); ?></strong> <?php echo esc_html($codsec); ?></p>
             <?php endif; ?>
 
             <?php if ($errors): ?>
                 <p class="ecf-error-details">
-                    <strong><?php esc_html_e('Errors:', 'woo-ecf-dgii'); ?></strong><br>
+                    <strong><?php esc_html_e('Errors:', 'ecf-dgii-invoicing'); ?></strong><br>
                     <?php echo esc_html($errors); ?>
                 </p>
             <?php endif; ?>
@@ -104,7 +104,7 @@ class Ecf_Admin_Order {
                         admin_url('admin-ajax.php?action=ecf_dgii_download_invoice&order_id=' . $order->get_id()),
                         'ecf_invoice_' . $order->get_id()
                     )); ?>" class="button" target="_blank">
-                        <?php esc_html_e('Download Invoice', 'woo-ecf-dgii'); ?>
+                        <?php esc_html_e('Download Invoice', 'ecf-dgii-invoicing'); ?>
                     </a>
                 </p>
             <?php endif; ?>
@@ -113,14 +113,14 @@ class Ecf_Admin_Order {
                 <p>
                     <button type="button" class="button ecf-retry-btn"
                             data-order-id="<?php echo esc_attr($order->get_id()); ?>">
-                        <?php esc_html_e('Send ECF', 'woo-ecf-dgii'); ?>
+                        <?php esc_html_e('Send ECF', 'ecf-dgii-invoicing'); ?>
                     </button>
                 </p>
                 <script>
                 jQuery(function($) {
                     $('.ecf-retry-btn').on('click', function() {
                         var $btn = $(this);
-                        $btn.prop('disabled', true).text('<?php echo esc_js(__('Sending...', 'woo-ecf-dgii')); ?>');
+                        $btn.prop('disabled', true).text('<?php echo esc_js(__('Sending...', 'ecf-dgii-invoicing')); ?>');
                         $.post(ajaxurl, {
                             action: 'ecf_dgii_retry_submission',
                             order_id: $btn.data('order-id'),
@@ -150,27 +150,27 @@ class Ecf_Admin_Order {
                     if (!$ref_encf) continue;
 
                     $ref_status_label = match($ref_status) {
-                        'accepted' => ['label' => __('Accepted', 'woo-ecf-dgii'), 'class' => 'ecf-status-accepted'],
-                        'rejected' => ['label' => __('Rejected', 'woo-ecf-dgii'), 'class' => 'ecf-status-rejected'],
-                        'error' => ['label' => __('Error', 'woo-ecf-dgii'), 'class' => 'ecf-status-error'],
-                        'submitting' => ['label' => __('Processing', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
-                        default => ['label' => __('Pending', 'woo-ecf-dgii'), 'class' => 'ecf-status-pending'],
+                        'accepted' => ['label' => __('Accepted', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-accepted'],
+                        'rejected' => ['label' => __('Rejected', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-rejected'],
+                        'error' => ['label' => __('Error', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-error'],
+                        'submitting' => ['label' => __('Processing', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-pending'],
+                        default => ['label' => __('Pending', 'ecf-dgii-invoicing'), 'class' => 'ecf-status-pending'],
                     };
                     ?>
                     <hr style="margin:10px 0;">
                     <p>
-                        <strong><?php esc_html_e('Credit Note (E34)', 'woo-ecf-dgii'); ?></strong>
+                        <strong><?php esc_html_e('Credit Note (E34)', 'ecf-dgii-invoicing'); ?></strong>
                         — <?php echo wp_kses_post(wc_price(abs((float) $refund->get_total()))); ?>
                     </p>
                     <p>
-                        <strong><?php esc_html_e('Status:', 'woo-ecf-dgii'); ?></strong>
+                        <strong><?php esc_html_e('Status:', 'ecf-dgii-invoicing'); ?></strong>
                         <span class="ecf-status-badge <?php echo esc_attr($ref_status_label['class']); ?>">
                             <?php echo esc_html($ref_status_label['label']); ?>
                         </span>
                     </p>
-                    <p><strong><?php esc_html_e('eNCF:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($ref_encf); ?></p>
+                    <p><strong><?php esc_html_e('eNCF:', 'ecf-dgii-invoicing'); ?></strong> <?php echo esc_html($ref_encf); ?></p>
                     <?php if ($ref_codsec): ?>
-                        <p><strong><?php esc_html_e('Security Code:', 'woo-ecf-dgii'); ?></strong> <?php echo esc_html($ref_codsec); ?></p>
+                        <p><strong><?php esc_html_e('Security Code:', 'ecf-dgii-invoicing'); ?></strong> <?php echo esc_html($ref_codsec); ?></p>
                     <?php endif; ?>
                     <?php if ($ref_errors): ?>
                         <p class="ecf-error-details"><?php echo esc_html($ref_errors); ?></p>

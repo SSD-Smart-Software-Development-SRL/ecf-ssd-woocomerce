@@ -28,20 +28,20 @@ class Ecf_Settings {
     }
 
     public static function add_settings_tab(array $tabs): array {
-        $tabs['ecf_dgii'] = __('ECF DGII', 'woo-ecf-dgii');
+        $tabs['ecf_dgii'] = __('ECF DGII', 'ecf-dgii-invoicing');
         return $tabs;
     }
 
     private static function get_environment_options(): array {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             return [
-                'test' => __('Test', 'woo-ecf-dgii'),
-                'cert' => __('Certification', 'woo-ecf-dgii'),
-                'prod' => __('Production', 'woo-ecf-dgii'),
+                'test' => __('Test', 'ecf-dgii-invoicing'),
+                'cert' => __('Certification', 'ecf-dgii-invoicing'),
+                'prod' => __('Production', 'ecf-dgii-invoicing'),
             ];
         }
         return [
-            'prod' => __('Production', 'woo-ecf-dgii'),
+            'prod' => __('Production', 'ecf-dgii-invoicing'),
         ];
     }
 
@@ -70,52 +70,52 @@ class Ecf_Settings {
         $fields = [
             'ecf_dgii_section_api' => [
                 'id'   => 'ecf_dgii_section_api',
-                'name' => __('API Connection', 'woo-ecf-dgii'),
+                'name' => __('API Connection', 'ecf-dgii-invoicing'),
                 'type' => 'title',
-                'desc' => __('Configure your ECF SSD API connection.', 'woo-ecf-dgii'),
+                'desc' => __('Configure your ECF SSD API connection.', 'ecf-dgii-invoicing'),
             ],
             self::OPTION_ENVIRONMENT => [
                 'id'      => self::OPTION_ENVIRONMENT,
-                'name'    => __('Environment', 'woo-ecf-dgii'),
+                'name'    => __('Environment', 'ecf-dgii-invoicing'),
                 'type'    => 'select',
                 'options' => self::get_environment_options(),
                 'default' => defined('WP_DEBUG') && WP_DEBUG ? 'test' : 'prod',
                 'desc'    => defined('WP_DEBUG') && WP_DEBUG
-                    ? __('Select the ECF SSD API environment. (Test/Cert visible in debug mode)', 'woo-ecf-dgii')
+                    ? __('Select the ECF SSD API environment. (Test/Cert visible in debug mode)', 'ecf-dgii-invoicing')
                     : '',
             ],
             self::OPTION_API_TOKEN => [
                 'id'   => self::OPTION_API_TOKEN,
-                'name' => __('API Token', 'woo-ecf-dgii'),
+                'name' => __('API Token', 'ecf-dgii-invoicing'),
                 'type' => 'password',
-                'desc' => __('Your ECF SSD API authentication token.', 'woo-ecf-dgii'),
+                'desc' => __('Your ECF SSD API authentication token.', 'ecf-dgii-invoicing'),
             ],
             self::OPTION_COMPANY_RNC => [
                 'id'                => self::OPTION_COMPANY_RNC,
-                'name'              => __('Company RNC', 'woo-ecf-dgii'),
+                'name'              => __('Company RNC', 'ecf-dgii-invoicing'),
                 'type'              => 'text',
-                'desc'              => __('Your company RNC. Cannot be changed once saved.', 'woo-ecf-dgii'),
+                'desc'              => __('Your company RNC. Cannot be changed once saved.', 'ecf-dgii-invoicing'),
                 'custom_attributes' => get_option(self::OPTION_COMPANY_RNC)
                     ? ['readonly' => 'readonly']
                     : [],
             ],
             self::OPTION_COMPANY_LEGAL_NAME => [
                 'id'   => self::OPTION_COMPANY_LEGAL_NAME,
-                'name' => __('Legal Name (Razón Social)', 'woo-ecf-dgii'),
+                'name' => __('Legal Name (Razón Social)', 'ecf-dgii-invoicing'),
                 'type' => 'text',
-                'desc' => __('Company legal name as registered with DGII.', 'woo-ecf-dgii'),
+                'desc' => __('Company legal name as registered with DGII.', 'ecf-dgii-invoicing'),
             ],
             self::OPTION_COMPANY_NAME => [
                 'id'   => self::OPTION_COMPANY_NAME,
-                'name' => __('Commercial Name', 'woo-ecf-dgii'),
+                'name' => __('Commercial Name', 'ecf-dgii-invoicing'),
                 'type' => 'text',
-                'desc' => __('Company commercial name (optional).', 'woo-ecf-dgii'),
+                'desc' => __('Company commercial name (optional).', 'ecf-dgii-invoicing'),
             ],
             self::OPTION_COMPANY_ADDRESS => [
                 'id'   => self::OPTION_COMPANY_ADDRESS,
-                'name' => __('Company Address', 'woo-ecf-dgii'),
+                'name' => __('Company Address', 'ecf-dgii-invoicing'),
                 'type' => 'text',
-                'desc' => __('Company address as registered with DGII.', 'woo-ecf-dgii'),
+                'desc' => __('Company address as registered with DGII.', 'ecf-dgii-invoicing'),
                 'custom_attributes' => ['maxlength' => 100],
             ],
             'ecf_dgii_section_api_end' => [
@@ -124,30 +124,30 @@ class Ecf_Settings {
             ],
             'ecf_dgii_section_general' => [
                 'id'   => 'ecf_dgii_section_general',
-                'name' => __('General Settings', 'woo-ecf-dgii'),
+                'name' => __('General Settings', 'ecf-dgii-invoicing'),
                 'type' => 'title',
             ],
             self::OPTION_DEFAULT_ECF_TYPE => [
                 'id'      => self::OPTION_DEFAULT_ECF_TYPE,
-                'name'    => __('Default ECF Type (when RNC provided)', 'woo-ecf-dgii'),
+                'name'    => __('Default ECF Type (when RNC provided)', 'ecf-dgii-invoicing'),
                 'type'    => 'select',
                 'options' => [
-                    'E31' => __('E31 - Crédito Fiscal', 'woo-ecf-dgii'),
-                    'E32' => __('E32 - Consumo', 'woo-ecf-dgii'),
+                    'E31' => __('E31 - Crédito Fiscal', 'ecf-dgii-invoicing'),
+                    'E32' => __('E32 - Consumo', 'ecf-dgii-invoicing'),
                 ],
                 'default' => 'E31',
             ],
             self::OPTION_RETRY_MAX => [
                 'id'                => self::OPTION_RETRY_MAX,
-                'name'              => __('Max retries before contingencia', 'woo-ecf-dgii'),
+                'name'              => __('Max retries before contingencia', 'ecf-dgii-invoicing'),
                 'type'              => 'number',
                 'default'           => 3,
-                'desc'              => __('Number of retry attempts before falling back to B-series.', 'woo-ecf-dgii'),
+                'desc'              => __('Number of retry attempts before falling back to B-series.', 'ecf-dgii-invoicing'),
                 'custom_attributes' => ['min' => 1, 'max' => 10],
             ],
             self::OPTION_RETRY_INTERVAL => [
                 'id'                => self::OPTION_RETRY_INTERVAL,
-                'name'              => __('Retry interval (seconds)', 'woo-ecf-dgii'),
+                'name'              => __('Retry interval (seconds)', 'ecf-dgii-invoicing'),
                 'type'              => 'number',
                 'default'           => 5,
                 'custom_attributes' => ['min' => 1, 'max' => 60],
@@ -167,7 +167,7 @@ class Ecf_Settings {
         // Test connection button
         echo '<table class="form-table"><tr><th></th><td>';
         echo '<button type="button" class="button" id="ecf-test-connection">';
-        echo esc_html__('Test Connection', 'woo-ecf-dgii');
+        echo esc_html__('Test Connection', 'ecf-dgii-invoicing');
         echo '</button>';
         echo '<span id="ecf-connection-result" style="margin-left:10px;"></span>';
         echo '</td></tr></table>';
@@ -179,7 +179,7 @@ class Ecf_Settings {
                 var $btn = $(this);
                 var $result = $('#ecf-connection-result');
                 $btn.prop('disabled', true);
-                $result.text('<?php echo esc_js(__('Testing...', 'woo-ecf-dgii')); ?>');
+                $result.text('<?php echo esc_js(__('Testing...', 'ecf-dgii-invoicing')); ?>');
                 $.post(ajaxurl, {
                     action: 'ecf_dgii_test_connection',
                     _wpnonce: '<?php echo wp_create_nonce('ecf_dgii_test_connection'); ?>'
@@ -205,7 +205,7 @@ class Ecf_Settings {
         check_ajax_referer('ecf_dgii_test_connection');
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_send_json_error(__('Permission denied.', 'woo-ecf-dgii'));
+            wp_send_json_error(__('Permission denied.', 'ecf-dgii-invoicing'));
         }
 
         try {
@@ -222,7 +222,7 @@ class Ecf_Settings {
 
             wp_send_json_success(
                 sprintf(
-                    __('Connected! Company: %s', 'woo-ecf-dgii'),
+                    __('Connected! Company: %s', 'ecf-dgii-invoicing'),
                     $company->getLegalName() ?? 'OK'
                 )
             );

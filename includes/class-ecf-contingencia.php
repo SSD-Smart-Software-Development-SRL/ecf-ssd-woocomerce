@@ -53,9 +53,9 @@ class Ecf_Contingencia {
         if (!$b_code) {
             $order->update_meta_data(Ecf_Order_Handler::META_ECF_STATUS, Ecf_Order_Handler::STATUS_ERROR);
             $order->update_meta_data(Ecf_Order_Handler::META_ECF_ERRORS,
-                __('Contingencia failed: No B-series codes available.', 'woo-ecf-dgii'));
+                __('Contingencia failed: No B-series codes available.', 'ecf-dgii-invoicing'));
             $order->save();
-            $order->add_order_note(__('ECF CRITICAL: No B-series codes available for contingencia!', 'woo-ecf-dgii'));
+            $order->add_order_note(__('ECF CRITICAL: No B-series codes available for contingencia!', 'ecf-dgii-invoicing'));
             return false;
         }
 
@@ -66,7 +66,7 @@ class Ecf_Contingencia {
 
         $order->add_order_note(
             sprintf(
-                __('ECF: Entered contingencia mode. B-series code: %s. Will auto-convert when API recovers.', 'woo-ecf-dgii'),
+                __('ECF: Entered contingencia mode. B-series code: %s. Will auto-convert when API recovers.', 'ecf-dgii-invoicing'),
                 $b_code['encf']
             )
         );
@@ -131,7 +131,7 @@ class Ecf_Contingencia {
         $sequence = Ecf_Sequence_Manager::claim_next($ecf_type, 'E');
         if (!$sequence) {
             $order->add_order_note(
-                sprintf(__('ECF Recovery: No eNCF sequences available for %s. Skipping.', 'woo-ecf-dgii'), $ecf_type)
+                sprintf(__('ECF Recovery: No eNCF sequences available for %s. Skipping.', 'ecf-dgii-invoicing'), $ecf_type)
             );
             return false;
         }
@@ -140,7 +140,7 @@ class Ecf_Contingencia {
 
         $order->add_order_note(
             sprintf(
-                __('ECF Recovery: Converting from B-series %s to eNCF %s', 'woo-ecf-dgii'),
+                __('ECF Recovery: Converting from B-series %s to eNCF %s', 'ecf-dgii-invoicing'),
                 $b_code,
                 $sequence['encf']
             )
@@ -172,7 +172,7 @@ class Ecf_Contingencia {
             return true;
         } catch (\Exception $e) {
             $order->add_order_note(
-                sprintf(__('ECF Recovery failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+                sprintf(__('ECF Recovery failed: %s', 'ecf-dgii-invoicing'), $e->getMessage())
             );
             // Revert — stay in contingencia
             $order->update_meta_data(Ecf_Order_Handler::META_ECF_STATUS, Ecf_Order_Handler::STATUS_CONTINGENCIA);
@@ -194,7 +194,7 @@ class Ecf_Contingencia {
             if ($seq['serie'] === 'B' && (int) $seq['remaining'] <= 10 && (int) $seq['remaining'] > 0) {
                 echo '<div class="notice notice-warning"><p>';
                 printf(
-                    esc_html__('ECF DGII: Low B-series stock for %s — only %d codes remaining.', 'woo-ecf-dgii'),
+                    esc_html__('ECF DGII: Low B-series stock for %s — only %d codes remaining.', 'ecf-dgii-invoicing'),
                     esc_html($seq['ecf_type']),
                     (int) $seq['remaining']
                 );

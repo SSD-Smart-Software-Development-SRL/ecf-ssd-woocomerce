@@ -9,15 +9,6 @@
         "dompdf/dompdf": "^3.1",
         "chillerlan/php-qrcode": "^5.0"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../ecf_dgii_clients/php",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
     "autoload": {
         "classmap": ["includes/"]
     },

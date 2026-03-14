@@ -14,8 +14,8 @@ class Ecf_Contingencia_Admin {
 
         add_submenu_page(
             'woocommerce',
-            __('ECF Contingencia', 'woo-ecf-dgii'),
-            __('ECF Contingencia', 'woo-ecf-dgii') . $badge,
+            __('ECF Contingencia', 'ecf-dgii-invoicing'),
+            __('ECF Contingencia', 'ecf-dgii-invoicing') . $badge,
             'manage_woocommerce',
             'ecf-contingencia',
             [self::class, 'render_page']
@@ -32,14 +32,14 @@ class Ecf_Contingencia_Admin {
         ]);
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('ECF Contingencia — B-Series Orders', 'woo-ecf-dgii'); ?></h1>
+            <h1><?php esc_html_e('ECF Contingencia — B-Series Orders', 'ecf-dgii-invoicing'); ?></h1>
 
             <?php if (isset($_GET['msg'])): ?>
                 <div class="notice notice-success is-dismissible">
                     <p><?php
                         echo match ($_GET['msg']) {
                             'submitted' => sprintf(
-                                esc_html__('%d order(s) submitted to DGII.', 'woo-ecf-dgii'),
+                                esc_html__('%d order(s) submitted to DGII.', 'ecf-dgii-invoicing'),
                                 absint($_GET['count'] ?? 0)
                             ),
                             default => '',
@@ -55,7 +55,7 @@ class Ecf_Contingencia_Admin {
             <?php endif; ?>
 
             <?php if (empty($orders)): ?>
-                <p><?php esc_html_e('No orders in contingencia mode.', 'woo-ecf-dgii'); ?></p>
+                <p><?php esc_html_e('No orders in contingencia mode.', 'ecf-dgii-invoicing'); ?></p>
             <?php else: ?>
                 <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                     <?php wp_nonce_field('ecf_batch_submit_contingencia'); ?>
@@ -63,11 +63,11 @@ class Ecf_Contingencia_Admin {
 
                     <p>
                         <button type="submit" class="button button-primary"
-                                onclick="return confirm('<?php echo esc_js(__('Submit selected orders to DGII?', 'woo-ecf-dgii')); ?>');">
-                            <?php esc_html_e('Submit Selected to DGII', 'woo-ecf-dgii'); ?>
+                                onclick="return confirm('<?php echo esc_js(__('Submit selected orders to DGII?', 'ecf-dgii-invoicing')); ?>');">
+                            <?php esc_html_e('Submit Selected to DGII', 'ecf-dgii-invoicing'); ?>
                         </button>
                         <button type="button" class="button" id="ecf-select-all">
-                            <?php esc_html_e('Select All', 'woo-ecf-dgii'); ?>
+                            <?php esc_html_e('Select All', 'ecf-dgii-invoicing'); ?>
                         </button>
                     </p>
 
@@ -75,13 +75,13 @@ class Ecf_Contingencia_Admin {
                         <thead>
                             <tr>
                                 <td class="check-column"><input type="checkbox" id="cb-select-all"></td>
-                                <th><?php esc_html_e('Order', 'woo-ecf-dgii'); ?></th>
-                                <th><?php esc_html_e('Date', 'woo-ecf-dgii'); ?></th>
-                                <th><?php esc_html_e('Customer', 'woo-ecf-dgii'); ?></th>
-                                <th><?php esc_html_e('Total', 'woo-ecf-dgii'); ?></th>
-                                <th><?php esc_html_e('ECF Type', 'woo-ecf-dgii'); ?></th>
-                                <th><?php esc_html_e('B-Series Code', 'woo-ecf-dgii'); ?></th>
-                                <th><?php esc_html_e('Original eNCF', 'woo-ecf-dgii'); ?></th>
+                                <th><?php esc_html_e('Order', 'ecf-dgii-invoicing'); ?></th>
+                                <th><?php esc_html_e('Date', 'ecf-dgii-invoicing'); ?></th>
+                                <th><?php esc_html_e('Customer', 'ecf-dgii-invoicing'); ?></th>
+                                <th><?php esc_html_e('Total', 'ecf-dgii-invoicing'); ?></th>
+                                <th><?php esc_html_e('ECF Type', 'ecf-dgii-invoicing'); ?></th>
+                                <th><?php esc_html_e('B-Series Code', 'ecf-dgii-invoicing'); ?></th>
+                                <th><?php esc_html_e('Original eNCF', 'ecf-dgii-invoicing'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -130,12 +130,12 @@ class Ecf_Contingencia_Admin {
         check_admin_referer('ecf_batch_submit_contingencia');
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(__('Permission denied.', 'woo-ecf-dgii'));
+            wp_die(__('Permission denied.', 'ecf-dgii-invoicing'));
         }
 
         $order_ids = array_map('absint', $_POST['order_ids'] ?? []);
         if (empty($order_ids)) {
-            wp_redirect(admin_url('admin.php?page=ecf-contingencia&error=' . urlencode(__('No orders selected.', 'woo-ecf-dgii'))));
+            wp_redirect(admin_url('admin.php?page=ecf-contingencia&error=' . urlencode(__('No orders selected.', 'ecf-dgii-invoicing'))));
             exit;
         }
 

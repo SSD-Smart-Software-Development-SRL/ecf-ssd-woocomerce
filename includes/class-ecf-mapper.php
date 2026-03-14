@@ -223,7 +223,7 @@ class Ecf_Mapper {
             if ($shipping_total > 0) {
                 $ecf_item = new Ecf32Item();
                 $ecf_item->setNumeroLinea($line_number++);
-                $ecf_item->setNombreItem($shipping->get_method_title() ?: __('Shipping', 'woo-ecf-dgii'));
+                $ecf_item->setNombreItem($shipping->get_method_title() ?: __('Shipping', 'ecf-dgii-invoicing'));
                 $ecf_item->setIndicadorFacturacion(self::get_shipping_tax_indicator_e32($shipping));
                 $ecf_item->setIndicadorBienoServicio(Ecf32IndicadorBienoServicioType::SERVICIO);
                 $ecf_item->setCantidadItem(1.0);
@@ -464,7 +464,7 @@ class Ecf_Mapper {
             if ($shipping_total > 0) {
                 $ecf_item = new Ecf31Item();
                 $ecf_item->setNumeroLinea($line_number++);
-                $ecf_item->setNombreItem($shipping->get_method_title() ?: __('Shipping', 'woo-ecf-dgii'));
+                $ecf_item->setNombreItem($shipping->get_method_title() ?: __('Shipping', 'ecf-dgii-invoicing'));
                 $ecf_item->setIndicadorFacturacion(self::get_shipping_tax_indicator_e31($shipping));
                 $ecf_item->setIndicadorBienoServicio(Ecf31IndicadorBienoServicioType::SERVICIO);
                 $ecf_item->setCantidadItem(1.0);

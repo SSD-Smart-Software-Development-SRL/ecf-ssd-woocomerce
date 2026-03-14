@@ -12,8 +12,8 @@ class Ecf_Sequence_Admin {
     public static function add_menu_page(): void {
         add_submenu_page(
             'woocommerce',
-            __('ECF Sequences', 'woo-ecf-dgii'),
-            __('ECF Sequences', 'woo-ecf-dgii'),
+            __('ECF Sequences', 'ecf-dgii-invoicing'),
+            __('ECF Sequences', 'ecf-dgii-invoicing'),
             'manage_woocommerce',
             'ecf-sequences',
             [self::class, 'render_page']
@@ -25,14 +25,14 @@ class Ecf_Sequence_Admin {
         $today = current_time('Y-m-d');
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('ECF eNCF Sequences', 'woo-ecf-dgii'); ?></h1>
+            <h1><?php esc_html_e('ECF eNCF Sequences', 'ecf-dgii-invoicing'); ?></h1>
 
             <?php if (isset($_GET['msg'])): ?>
                 <div class="notice notice-success is-dismissible">
                     <p><?php
                         echo match ($_GET['msg']) {
-                            'added' => esc_html__('Sequence added successfully.', 'woo-ecf-dgii'),
-                            'deactivated' => esc_html__('Sequence deactivated.', 'woo-ecf-dgii'),
+                            'added' => esc_html__('Sequence added successfully.', 'ecf-dgii-invoicing'),
+                            'deactivated' => esc_html__('Sequence deactivated.', 'ecf-dgii-invoicing'),
                             default => '',
                         };
                     ?></p>
@@ -45,26 +45,26 @@ class Ecf_Sequence_Admin {
                 </div>
             <?php endif; ?>
 
-            <h2><?php esc_html_e('Active Sequences', 'woo-ecf-dgii'); ?></h2>
+            <h2><?php esc_html_e('Active Sequences', 'ecf-dgii-invoicing'); ?></h2>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e('Type', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Serie', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Prefix', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Start', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('End', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Current', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Remaining', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Expiry Date', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Status', 'woo-ecf-dgii'); ?></th>
-                        <th><?php esc_html_e('Actions', 'woo-ecf-dgii'); ?></th>
+                        <th><?php esc_html_e('Type', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Serie', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Prefix', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Start', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('End', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Current', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Remaining', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Expiry Date', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Status', 'ecf-dgii-invoicing'); ?></th>
+                        <th><?php esc_html_e('Actions', 'ecf-dgii-invoicing'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($sequences)): ?>
                         <tr>
-                            <td colspan="10"><?php esc_html_e('No sequences found. Add one below.', 'woo-ecf-dgii'); ?></td>
+                            <td colspan="10"><?php esc_html_e('No sequences found. Add one below.', 'ecf-dgii-invoicing'); ?></td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($sequences as $seq): ?>
@@ -73,8 +73,8 @@ class Ecf_Sequence_Admin {
                             $exhausted = (int) $seq['remaining'] <= 0;
                             $status_class = $expired ? 'color:red;' : ($exhausted ? 'color:orange;' : 'color:green;');
                             $status_text = $expired
-                                ? __('Expired', 'woo-ecf-dgii')
-                                : ($exhausted ? __('Exhausted', 'woo-ecf-dgii') : __('Active', 'woo-ecf-dgii'));
+                                ? __('Expired', 'ecf-dgii-invoicing')
+                                : ($exhausted ? __('Exhausted', 'ecf-dgii-invoicing') : __('Active', 'ecf-dgii-invoicing'));
                             ?>
                             <tr>
                                 <td><?php echo esc_html($seq['ecf_type']); ?></td>
@@ -94,8 +94,8 @@ class Ecf_Sequence_Admin {
                                         <input type="hidden" name="action" value="ecf_deactivate_sequence">
                                         <input type="hidden" name="sequence_id" value="<?php echo esc_attr($seq['id']); ?>">
                                         <button type="submit" class="button button-small"
-                                                onclick="return confirm('<?php echo esc_js(__('Deactivate this sequence?', 'woo-ecf-dgii')); ?>');">
-                                            <?php esc_html_e('Deactivate', 'woo-ecf-dgii'); ?>
+                                                onclick="return confirm('<?php echo esc_js(__('Deactivate this sequence?', 'ecf-dgii-invoicing')); ?>');">
+                                            <?php esc_html_e('Deactivate', 'ecf-dgii-invoicing'); ?>
                                         </button>
                                     </form>
                                 </td>
@@ -106,13 +106,13 @@ class Ecf_Sequence_Admin {
             </table>
 
             <hr>
-            <h2><?php esc_html_e('Add New Sequence', 'woo-ecf-dgii'); ?></h2>
+            <h2><?php esc_html_e('Add New Sequence', 'ecf-dgii-invoicing'); ?></h2>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('ecf_add_sequence'); ?>
                 <input type="hidden" name="action" value="ecf_add_sequence">
                 <table class="form-table">
                     <tr>
-                        <th><label for="serie"><?php esc_html_e('Serie', 'woo-ecf-dgii'); ?></label></th>
+                        <th><label for="serie"><?php esc_html_e('Serie', 'ecf-dgii-invoicing'); ?></label></th>
                         <td>
                             <select name="serie" id="serie" required>
                                 <option value="E">E - Electrónico</option>
@@ -121,7 +121,7 @@ class Ecf_Sequence_Admin {
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="ecf_type"><?php esc_html_e('Type', 'woo-ecf-dgii'); ?></label></th>
+                        <th><label for="ecf_type"><?php esc_html_e('Type', 'ecf-dgii-invoicing'); ?></label></th>
                         <td>
                             <select name="ecf_type" id="ecf_type" required>
                             </select>
@@ -129,27 +129,27 @@ class Ecf_Sequence_Admin {
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="range_start"><?php esc_html_e('Range Start', 'woo-ecf-dgii'); ?></label></th>
+                        <th><label for="range_start"><?php esc_html_e('Range Start', 'ecf-dgii-invoicing'); ?></label></th>
                         <td>
                             <input type="number" name="range_start" id="range_start" required min="1" class="regular-text"
                                    placeholder="1">
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="range_end"><?php esc_html_e('Range End', 'woo-ecf-dgii'); ?></label></th>
+                        <th><label for="range_end"><?php esc_html_e('Range End', 'ecf-dgii-invoicing'); ?></label></th>
                         <td>
                             <input type="number" name="range_end" id="range_end" required min="1" class="regular-text"
                                    placeholder="1000">
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="expiration_date"><?php esc_html_e('Expiration Date', 'woo-ecf-dgii'); ?></label></th>
+                        <th><label for="expiration_date"><?php esc_html_e('Expiration Date', 'ecf-dgii-invoicing'); ?></label></th>
                         <td>
                             <input type="date" name="expiration_date" id="expiration_date" required class="regular-text">
                         </td>
                     </tr>
                 </table>
-                <?php submit_button(__('Add Sequence', 'woo-ecf-dgii')); ?>
+                <?php submit_button(__('Add Sequence', 'ecf-dgii-invoicing')); ?>
             </form>
         </div>
         <script>
@@ -197,7 +197,7 @@ class Ecf_Sequence_Admin {
         check_admin_referer('ecf_add_sequence');
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(__('Permission denied.', 'woo-ecf-dgii'));
+            wp_die(__('Permission denied.', 'ecf-dgii-invoicing'));
         }
 
         $ecf_type = sanitize_text_field($_POST['ecf_type'] ?? '');
@@ -208,17 +208,17 @@ class Ecf_Sequence_Admin {
         $expiration_date = sanitize_text_field($_POST['expiration_date'] ?? '');
 
         if (!$ecf_type || !$prefix || !$range_start || !$range_end || !$expiration_date) {
-            wp_redirect(admin_url('admin.php?page=ecf-sequences&error=' . urlencode(__('All fields are required.', 'woo-ecf-dgii'))));
+            wp_redirect(admin_url('admin.php?page=ecf-sequences&error=' . urlencode(__('All fields are required.', 'ecf-dgii-invoicing'))));
             exit;
         }
 
         if ($range_start > $range_end) {
-            wp_redirect(admin_url('admin.php?page=ecf-sequences&error=' . urlencode(__('Range start must be less than range end.', 'woo-ecf-dgii'))));
+            wp_redirect(admin_url('admin.php?page=ecf-sequences&error=' . urlencode(__('Range start must be less than range end.', 'ecf-dgii-invoicing'))));
             exit;
         }
 
         if (!in_array($ecf_type, ['E31', 'E32', 'E33', 'E34'], true)) {
-            wp_redirect(admin_url('admin.php?page=ecf-sequences&error=' . urlencode(__('Invalid ECF type.', 'woo-ecf-dgii'))));
+            wp_redirect(admin_url('admin.php?page=ecf-sequences&error=' . urlencode(__('Invalid ECF type.', 'ecf-dgii-invoicing'))));
             exit;
         }
 
@@ -233,7 +233,7 @@ class Ecf_Sequence_Admin {
         check_admin_referer('ecf_deactivate_seq_' . $seq_id);
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(__('Permission denied.', 'woo-ecf-dgii'));
+            wp_die(__('Permission denied.', 'ecf-dgii-invoicing'));
         }
 
         if ($seq_id) {

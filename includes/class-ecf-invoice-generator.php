@@ -27,7 +27,7 @@ class Ecf_Invoice_Generator {
 
     public static function handle_download(): void {
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(__('Permission denied.', 'woo-ecf-dgii'));
+            wp_die(__('Permission denied.', 'ecf-dgii-invoicing'));
         }
 
         $order_id = absint($_GET['order_id'] ?? 0);
@@ -35,12 +35,12 @@ class Ecf_Invoice_Generator {
 
         $order = wc_get_order($order_id);
         if (!$order) {
-            wp_die(__('Order not found.', 'woo-ecf-dgii'));
+            wp_die(__('Order not found.', 'ecf-dgii-invoicing'));
         }
 
         $status = $order->get_meta(Ecf_Order_Handler::META_ECF_STATUS);
         if ($status !== Ecf_Order_Handler::STATUS_ACCEPTED) {
-            wp_die(__('Invoice only available for accepted ECFs.', 'woo-ecf-dgii'));
+            wp_die(__('Invoice only available for accepted ECFs.', 'ecf-dgii-invoicing'));
         }
 
         $pdf = self::generate_pdf($order);
@@ -238,7 +238,7 @@ class Ecf_Invoice_Generator {
             $shipping_tax = (float) $order->get_shipping_tax();
             $html .= '<tr>';
             $html .= '<td class="text-right">1.00</td>';
-            $html .= '<td>' . esc_html__('Envío', 'woo-ecf-dgii') . '</td>';
+            $html .= '<td>' . esc_html__('Envío', 'ecf-dgii-invoicing') . '</td>';
             $html .= '<td class="text-center">Servicio</td>';
             $html .= '<td class="text-right">' . number_format($shipping_total, 2) . '</td>';
             $html .= '<td class="text-right">' . ($shipping_tax > 0 ? number_format($shipping_tax, 2) : '') . '</td>';

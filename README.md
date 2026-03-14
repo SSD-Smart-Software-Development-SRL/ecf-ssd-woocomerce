@@ -1,4 +1,4 @@
-# WooCommerce ECF DGII
+# ECF DGII Invoicing for WooCommerce
 
 Automatically generate and submit electronic fiscal documents (ECF) to the Dominican Republic tax authority (DGII) from your WooCommerce store.
 
@@ -47,7 +47,7 @@ Built and maintained by [SSD Smart Software Development SRL](https://ssd.com.do)
 
 ## Installation
 
-1. Upload the `woo-ecf-dgii` folder to `/wp-content/plugins/`.
+1. Upload the `ecf-dgii-invoicing` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the **Plugins** menu in WordPress.
 3. Go to **WooCommerce > Settings > ECF DGII** and enter your API credentials.
 4. Set your company information (RNC, legal name, address).

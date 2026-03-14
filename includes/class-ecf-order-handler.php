@@ -76,10 +76,10 @@ class Ecf_Order_Handler {
         $sequence = Ecf_Sequence_Manager::claim_next($ecf_type);
         if (!$sequence) {
             $order->update_meta_data(self::META_ECF_STATUS, self::STATUS_ERROR);
-            $order->update_meta_data(self::META_ECF_ERRORS, __('No available eNCF sequences for type ', 'woo-ecf-dgii') . $ecf_type);
+            $order->update_meta_data(self::META_ECF_ERRORS, __('No available eNCF sequences for type ', 'ecf-dgii-invoicing') . $ecf_type);
             $order->save();
             $order->add_order_note(
-                sprintf(__('ECF Error: No available eNCF sequences for %s.', 'woo-ecf-dgii'), $ecf_type)
+                sprintf(__('ECF Error: No available eNCF sequences for %s.', 'ecf-dgii-invoicing'), $ecf_type)
             );
             return;
         }
@@ -112,7 +112,7 @@ class Ecf_Order_Handler {
             $order->update_meta_data(self::META_ECF_ERRORS, $e->getMessage());
             $order->save();
             $order->add_order_note(
-                sprintf(__('ECF submission failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+                sprintf(__('ECF submission failed: %s', 'ecf-dgii-invoicing'), $e->getMessage())
             );
         }
     }
@@ -139,7 +139,7 @@ class Ecf_Order_Handler {
 
             $order->add_order_note(
                 sprintf(
-                    __('ECF accepted! eNCF: %s, Security Code: %s', 'woo-ecf-dgii'),
+                    __('ECF accepted! eNCF: %s, Security Code: %s', 'ecf-dgii-invoicing'),
                     $order->get_meta(self::META_ECF_ENCF),
                     $result->getCodSec() ?? 'N/A'
                 )
@@ -151,10 +151,10 @@ class Ecf_Order_Handler {
             $order->save();
 
             $order->add_order_note(
-                sprintf(__('ECF rejected: %s', 'woo-ecf-dgii'), $e->getMessage())
+                sprintf(__('ECF rejected: %s', 'ecf-dgii-invoicing'), $e->getMessage())
             );
         } catch (EcfPollingTimeoutException $e) {
-            $order->add_order_note(__('ECF polling timed out.', 'woo-ecf-dgii'));
+            $order->add_order_note(__('ECF polling timed out.', 'ecf-dgii-invoicing'));
 
             if (!Ecf_Contingencia::activate($order)) {
                 $order->update_meta_data(self::META_ECF_STATUS, self::STATUS_ERROR);
@@ -163,7 +163,7 @@ class Ecf_Order_Handler {
             }
         } catch (\Exception $e) {
             $order->add_order_note(
-                sprintf(__('ECF polling failed: %s', 'woo-ecf-dgii'), $e->getMessage())
+                sprintf(__('ECF polling failed: %s', 'ecf-dgii-invoicing'), $e->getMessage())
             );
 
             if (!Ecf_Contingencia::activate($order)) {
