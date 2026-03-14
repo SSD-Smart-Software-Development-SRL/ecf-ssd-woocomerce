@@ -17,6 +17,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Stamp version in plugin header
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/^ \* Version: .*/ * Version: ${VERSION}/" woo-ecf-dgii.php
+          sed -i "s/define('WOO_ECF_DGII_VERSION', '.*')/define('WOO_ECF_DGII_VERSION', '${VERSION}')/" woo-ecf-dgii.php
+
       - name: Generate changelog.txt
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
