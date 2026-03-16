@@ -50,7 +50,7 @@ class Ecf_Contingencia_Admin {
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="notice notice-error is-dismissible">
-                    <p><?php echo esc_html(urldecode($_GET['error'])); ?></p>
+                    <p><?php echo esc_html(sanitize_text_field(wp_unslash($_GET['error']))); ?></p>
                 </div>
             <?php endif; ?>
 
@@ -130,12 +130,12 @@ class Ecf_Contingencia_Admin {
         check_admin_referer('ecf_batch_submit_contingencia');
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(__('Permission denied.', 'ecf-dgii-invoicing'));
+            wp_die(esc_html__('Permission denied.', 'ecf-dgii-invoicing'));
         }
 
         $order_ids = array_map('absint', $_POST['order_ids'] ?? []);
         if (empty($order_ids)) {
-            wp_redirect(admin_url('admin.php?page=ecf-contingencia&error=' . urlencode(__('No orders selected.', 'ecf-dgii-invoicing'))));
+            wp_safe_redirect(admin_url('admin.php?page=ecf-contingencia&error=' . urlencode(__('No orders selected.', 'ecf-dgii-invoicing'))));
             exit;
         }
 
@@ -156,7 +156,7 @@ class Ecf_Contingencia_Admin {
             }
         }
 
-        wp_redirect(admin_url('admin.php?page=ecf-contingencia&msg=submitted&count=' . $submitted));
+        wp_safe_redirect(admin_url('admin.php?page=ecf-contingencia&msg=submitted&count=' . $submitted));
         exit;
     }
 }

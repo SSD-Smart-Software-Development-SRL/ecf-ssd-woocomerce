@@ -124,7 +124,7 @@ class Ecf_Admin_Order {
                         $.post(ajaxurl, {
                             action: 'ecf_dgii_retry_submission',
                             order_id: $btn.data('order-id'),
-                            _wpnonce: '<?php echo wp_create_nonce('ecf_dgii_retry'); ?>'
+                            _wpnonce: '<?php echo esc_attr(wp_create_nonce('ecf_dgii_retry')); ?>'
                         }, function() {
                             location.reload();
                         });

@@ -115,6 +115,7 @@ class Ecf_Api_Client {
         $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
             $body = (string) $request->getBody();
             $request->getBody()->rewind();
+            // phpcs:ignore QITStandard.PHP.DebugCode.DebugFunctionFound -- Intentional debug logging gated behind WP_DEBUG.
             error_log(sprintf(
                 "[ECF API Request] %s %s\nHeaders: %s\nBody: %s",
                 $request->getMethod(),
@@ -127,6 +128,7 @@ class Ecf_Api_Client {
         $stack->push(Middleware::mapResponse(function (ResponseInterface $response) {
             $body = (string) $response->getBody();
             $response->getBody()->rewind();
+            // phpcs:ignore QITStandard.PHP.DebugCode.DebugFunctionFound -- Intentional debug logging gated behind WP_DEBUG.
             error_log(sprintf(
                 "[ECF API Response] %d\nBody: %s",
                 $response->getStatusCode(),

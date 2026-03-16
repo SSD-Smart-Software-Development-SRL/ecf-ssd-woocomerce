@@ -27,7 +27,7 @@ class Ecf_Invoice_Generator {
 
     public static function handle_download(): void {
         if (!current_user_can('manage_woocommerce')) {
-            wp_die(__('Permission denied.', 'ecf-dgii-invoicing'));
+            wp_die(esc_html__('Permission denied.', 'ecf-dgii-invoicing'));
         }
 
         $order_id = absint($_GET['order_id'] ?? 0);
@@ -35,12 +35,12 @@ class Ecf_Invoice_Generator {
 
         $order = wc_get_order($order_id);
         if (!$order) {
-            wp_die(__('Order not found.', 'ecf-dgii-invoicing'));
+            wp_die(esc_html__('Order not found.', 'ecf-dgii-invoicing'));
         }
 
         $status = $order->get_meta(Ecf_Order_Handler::META_ECF_STATUS);
         if ($status !== Ecf_Order_Handler::STATUS_ACCEPTED) {
-            wp_die(__('Invoice only available for accepted ECFs.', 'ecf-dgii-invoicing'));
+            wp_die(esc_html__('Invoice only available for accepted ECFs.', 'ecf-dgii-invoicing'));
         }
 
         $pdf = self::generate_pdf($order);
@@ -51,6 +51,7 @@ class Ecf_Invoice_Generator {
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="' . $filename . '"');
         header('Cache-Control: private, max-age=0, must-revalidate');
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Binary PDF output, cannot be escaped.
         echo $pdf;
         exit;
     }

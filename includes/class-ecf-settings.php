@@ -197,7 +197,7 @@ class Ecf_Settings {
                 $result.text('<?php echo esc_js(__('Testing...', 'ecf-dgii-invoicing')); ?>');
                 $.post(ajaxurl, {
                     action: 'ecf_dgii_test_connection',
-                    _wpnonce: '<?php echo wp_create_nonce('ecf_dgii_test_connection'); ?>'
+                    _wpnonce: '<?php echo esc_attr(wp_create_nonce('ecf_dgii_test_connection')); ?>'
                 }, function(response) {
                     $btn.prop('disabled', false);
                     if (response.success) {
