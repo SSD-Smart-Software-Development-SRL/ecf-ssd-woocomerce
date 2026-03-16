@@ -10,7 +10,9 @@
         "chillerlan/php-qrcode": "^5.0"
     },
     "autoload": {
-        "classmap": ["includes/"]
+        "classmap": [
+            "includes/"
+        ]
     },
     "require-dev": {
         "php-stubs/wordpress-stubs": "^6.9",
