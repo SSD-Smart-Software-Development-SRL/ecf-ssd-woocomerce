@@ -72,7 +72,7 @@ class Ecf_Sequence_Manager {
         $today = current_time('Y-m-d');
 
         // Find active, non-expired sequence for this type
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
         $sequence = $wpdb->get_row($wpdb->prepare(
             "SELECT id, prefix, current_number, range_end, expiration_date
              FROM {$table}
@@ -87,13 +87,14 @@ class Ecf_Sequence_Manager {
             $serie,
             $today
         ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         if (!$sequence) {
             return null;
         }
 
         // Atomic increment — check affected rows to confirm claim
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
         $affected = $wpdb->query($wpdb->prepare(
             "UPDATE {$table}
              SET current_number = current_number + 1
@@ -101,6 +102,7 @@ class Ecf_Sequence_Manager {
             $sequence->id,
             $sequence->range_end
         ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         if ($affected === 0) {
             return self::claim_next($ecf_type, $serie);
@@ -126,11 +128,12 @@ class Ecf_Sequence_Manager {
         // Extract prefix (first 3 chars, e.g. "E34" or "B04")
         $prefix = substr($encf, 0, 3);
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
         $row = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$table} WHERE prefix = %s AND is_active = 1 ORDER BY id ASC LIMIT 1",
             $prefix
         ), ARRAY_A);
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         return $row ?: null;
     }
@@ -150,13 +153,16 @@ class Ecf_Sequence_Manager {
         global $wpdb;
         $table = self::get_table_name();
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
-        return $wpdb->get_results(
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix + hardcoded constant.
+        $results = $wpdb->get_results(
             "SELECT *, (range_end - current_number + 1) as remaining
              FROM {$table}
              WHERE is_active = 1
              ORDER BY ecf_type, serie, id",
             ARRAY_A
         ) ?: [];
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        return $results;
     }
 }
