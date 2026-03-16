@@ -62,6 +62,14 @@ class Ecf_Settings {
         return get_option(self::OPTION_COMPANY_RNC, '');
     }
 
+    /**
+     * Check if the plugin is fully configured (API token + company RNC).
+     * Used to skip ECF processing when the plugin hasn't been set up yet.
+     */
+    public static function is_configured(): bool {
+        return self::get_api_token() !== '' && self::get_company_rnc() !== '';
+    }
+
     public static function get_company_data(): array {
         return [
             'razonSocial' => get_option(self::OPTION_COMPANY_LEGAL_NAME, ''),

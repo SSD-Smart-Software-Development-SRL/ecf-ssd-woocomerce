@@ -40,6 +40,11 @@ class Ecf_Refund_Handler {
      * Must NOT block — this runs inside the WooCommerce refund AJAX handler.
      */
     public static function on_order_refunded(int $order_id, int $refund_id): void {
+        // Skip if the plugin is not configured
+        if (!Ecf_Settings::is_configured()) {
+            return;
+        }
+
         $order = wc_get_order($order_id);
         $refund = wc_get_order($refund_id);
 

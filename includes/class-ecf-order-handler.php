@@ -55,6 +55,11 @@ class Ecf_Order_Handler {
             return;
         }
 
+        // Skip if the plugin is not configured
+        if (!Ecf_Settings::is_configured()) {
+            return;
+        }
+
         // Don't re-process orders that already have an ECF
         $existing_status = $order->get_meta(self::META_ECF_STATUS);
         if ($existing_status && $existing_status !== self::STATUS_ERROR) {
